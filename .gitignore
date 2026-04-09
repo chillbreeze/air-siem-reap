@@ -35,3 +35,6 @@ blog/output/
 # OS
 .DS_Store
 Thumbs.db
+
+# Secrets files
+secrets.yaml

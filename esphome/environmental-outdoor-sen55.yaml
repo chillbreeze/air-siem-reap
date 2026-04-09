@@ -1,0 +1,134 @@
+esphome:
+  name: environmental-outdoor-sen55
+  friendly_name: Environmental Outdoor SEN55
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "SEN55 Fallback"
+    password: !secret ap_password
+
+  manual_ip:
+    static_ip: !secret static_ip_env_sen55
+    gateway: !secret gateway
+    subnet: !secret subnet
+    dns1: !secret dns1
+
+captive_portal:
+
+i2c:
+  sda: GPIO8
+  scl: GPIO9
+  scan: true
+  id: bus_a
+
+sensor:
+  - platform: sen5x
+    id: sen55
+    pm_1_0:
+      name: "PM1.0"
+      id: sen55_pm1_0
+      unit_of_measurement: µg/m³
+      accuracy_decimals: 1
+    pm_2_5:
+      name: "PM2.5"
+      id: sen55_pm2_5
+      unit_of_measurement: µg/m³
+      accuracy_decimals: 1
+    pm_4_0:
+      name: "PM4.0"
+      id: sen55_pm4_0
+      unit_of_measurement: µg/m³
+      accuracy_decimals: 1
+    pm_10_0:
+      name: "PM10"
+      id: sen55_pm10_0
+      unit_of_measurement: µg/m³
+      accuracy_decimals: 1
+
+    temperature:
+      name: "Temperature"
+      id: sen55_temperature
+      accuracy_decimals: 1
+    humidity:
+      name: "Humidity"
+      id: sen55_humidity
+      accuracy_decimals: 1
+    voc:
+      name: "VOC Index"
+      id: sen55_voc
+    nox:
+      name: "NOx Index"
+      id: sen55_nox
+    address: 0x69
+    update_interval: 60s
+
+    temperature_compensation:
+      offset: 1.6
+      normalized_offset_slope: 0.0
+      time_constant: 0
+
+  - platform: template
+    name: "Dew Point - Outdoor"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    lambda: |-
+      float T = id(sen55_temperature).state;
+      float RH = id(sen55_humidity).state;
+      float b = 17.67;
+      float c = 243.5;
+      float gamma = (b * T) / (c + T) + log(RH / 100.0);
+      return (c * gamma) / (b - gamma);
+
+  - platform: template
+    name: "Heat Index - Outdoor"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    state_class: measurement
+    lambda: |-
+      float T = id(sen55_temperature).state;
+      float RH = id(sen55_humidity).state;
+      float hi = -8.78469475556 +
+                  1.61139411 * T +
+                  2.33854883889 * RH +
+                  -0.14611605 * T * RH +
+                  -0.012308094 * T * T +
+                  -0.0164248277778 * RH * RH +
+                  0.002211732 * T * T * RH +
+                  0.00072546 * T * RH * RH +
+                  -0.000003582 * T * T * RH * RH;
+      return hi;
+
+  - platform: aqi
+    name: "AQI - Outdoor"
+    pm_2_5: sen55_pm2_5
+    pm_10_0: sen55_pm10_0
+    calculation_type: AQI
+
+  - platform: wifi_signal
+    name: "SEN55 WiFi Signal"
+    update_interval: 60s
+
+  - platform: uptime
+    name: "SEN55 Uptime"
+
+button:
+  - platform: restart
+    name: "SEN55 Restart"

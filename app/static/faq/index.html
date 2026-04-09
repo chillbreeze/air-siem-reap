@@ -144,6 +144,39 @@
                 color: var(--text-dim);
             }
 
+            .toc {
+                background: var(--card-bg);
+                border: 1px solid var(--border);
+                padding: 2rem;
+                margin-bottom: 3rem;
+            }
+
+            .toc-title {
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                color: var(--text-dim);
+                margin-bottom: 1rem;
+            }
+
+            .toc ol {
+                padding-left: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .toc a {
+                color: var(--text-dim);
+                text-decoration: none;
+                font-size: 1rem;
+                transition: color 0.2s;
+            }
+
+            .toc a:hover {
+                color: var(--text);
+            }
+
             .aqi-table {
                 width: 100%;
                 border-collapse: collapse;
@@ -213,8 +246,23 @@
                 <div class="hero-title">FAQ</div>
             </div>
 
+            <div class="toc">
+                <div class="toc-title">Contents</div>
+                <ol>
+                    <li><a href="#what-is-aqi">What is AQI?</a></li>
+                    <li><a href="#aqi-levels">What do the AQI levels mean?</a></li>
+                    <li><a href="#particulate-matter">What is PM2.5, PM1.0, and PM10?</a></li>
+                    <li><a href="#sensor-location">Where is the sensor located?</a></li>
+                    <li><a href="#sensor-hardware">What sensor hardware is used?</a></li>
+                    <li><a href="#update-frequency">How often does the data update?</a></li>
+                    <li><a href="#aqi-calculation">How is the AQI calculated?</a></li>
+                    <li><a href="#aqi-spikes">Why does the AQI sometimes spike suddenly?</a></li>
+                    <li><a href="#source-code">Is the source code available?</a></li>
+                </ol>
+            </div>
+
             <div class="faq-list">
-                <div class="faq-item">
+                <div class="faq-item" id="what-is-aqi">
                     <div class="faq-question">What is AQI?</div>
                     <div class="faq-answer">
                         AQI stands for Air Quality Index. It is a standardised
@@ -225,7 +273,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" id="aqi-levels">
                     <div class="faq-question">What do the AQI levels mean?</div>
                     <div class="faq-answer">
                         <table class="aqi-table">
@@ -279,7 +327,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" id="particulate-matter">
                     <div class="faq-question">
                         What is PM2.5, PM1.0, and PM10?
                     </div>
@@ -293,7 +341,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" id="sensor-location">
                     <div class="faq-question">Where is the sensor located?</div>
                     <div class="faq-answer">
                         The sensor is located outdoors in Siem Reap, Cambodia.
@@ -302,7 +350,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" id="sensor-hardware">
                     <div class="faq-question">
                         What sensor hardware is used?
                     </div>
@@ -314,7 +362,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" id="update-frequency">
                     <div class="faq-question">
                         How often does the data update?
                     </div>
@@ -325,7 +373,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" id="aqi-calculation">
                     <div class="faq-question">How is the AQI calculated?</div>
                     <div class="faq-answer">
                         AQI is derived from the PM2.5 reading using the US EPA
@@ -336,7 +384,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" id="aqi-spikes">
                     <div class="faq-question">
                         Why does the AQI sometimes spike suddenly?
                     </div>
@@ -348,7 +396,7 @@
                     </div>
                 </div>
 
-                <div class="faq-item">
+                <div class="faq-item" id="source-code">
                     <div class="faq-question">
                         Is the source code available?
                     </div>
