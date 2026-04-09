@@ -68,10 +68,10 @@ def images(filename):
     return send_from_directory('static/images', filename)
 
 
-@app.route('/about/')
-def about():
-    """Serve the about page."""
-    return send_from_directory('static/about', 'index.html')
+@app.route('/faq/')
+def faq():
+    """Serve the FAQ page."""
+    return send_from_directory('static/faq', 'index.html')
 
 
 @app.route('/api/sensors')

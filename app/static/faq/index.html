@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>FAQ - Air Quality Siem Reap</title>
+        <link rel="icon" href="/images/favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Space+Mono:wght@700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --bg: #0a0a0a;
+                --text: #fafafa;
+                --text-dim: #666;
+                --card-bg: #141414;
+                --border: #222;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "DM Sans", sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                min-height: 100vh;
+                padding: 2rem;
+            }
+
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 3rem;
+                padding-bottom: 1.5rem;
+                border-bottom: 1px solid var(--border);
+            }
+
+            header h1 {
+                font-family: "DM Sans", sans-serif;
+                font-weight: 500;
+                font-size: 1.25rem;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                color: var(--text-dim);
+            }
+
+            header h1 a {
+                color: inherit;
+                text-decoration: none;
+            }
+
+            .location {
+                font-size: 0.875rem;
+                color: var(--text-dim);
+            }
+
+            .nav-link {
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                color: var(--text-dim);
+                text-decoration: none;
+                margin-top: 0.4rem;
+                display: inline-block;
+                transition: color 0.2s;
+            }
+
+            .nav-link + .nav-link {
+                margin-left: 1.5rem;
+            }
+            .nav-link:hover {
+                color: var(--text);
+            }
+
+            nav {
+                margin-bottom: 3rem;
+            }
+
+            .hero {
+                text-align: center;
+                padding: 3rem 0 4rem;
+                border-bottom: 1px solid var(--border);
+                margin-bottom: 3rem;
+            }
+
+            .hero-label {
+                font-size: 0.875rem;
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                color: var(--text-dim);
+                margin-bottom: 0.5rem;
+            }
+
+            .hero-title {
+                font-family: "Space Mono", monospace;
+                font-size: clamp(2rem, 8vw, 4rem);
+                font-weight: 700;
+                line-height: 1;
+                color: var(--text-dim);
+            }
+
+            .faq-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+                margin-bottom: 4rem;
+            }
+
+            .faq-item {
+                border-bottom: 1px solid var(--border);
+                padding: 2rem 0;
+            }
+
+            .faq-item:first-child {
+                border-top: 1px solid var(--border);
+            }
+
+            .faq-question {
+                font-size: 1.5rem;
+                font-weight: 500;
+                margin-bottom: 0.75rem;
+            }
+
+            .faq-answer {
+                font-size: 1.25rem;
+                color: var(--text-dim);
+                line-height: 1.7;
+            }
+
+            .faq-answer a {
+                color: var(--text-dim);
+            }
+
+            .aqi-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 1rem;
+                font-size: 0.85rem;
+            }
+
+            .aqi-table th {
+                text-align: left;
+                font-size: 0.7rem;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                color: var(--text-dim);
+                padding: 0.5rem 1rem 0.5rem 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .aqi-table td {
+                padding: 0.6rem 1rem 0.6rem 0;
+                border-bottom: 1px solid var(--border);
+                color: var(--text-dim);
+            }
+
+            .aqi-table td:first-child {
+                color: var(--text);
+                font-weight: 500;
+            }
+
+            footer {
+                text-align: center;
+                padding-top: 2rem;
+                border-top: 1px solid var(--border);
+            }
+
+            .footer-text {
+                font-size: 0.75rem;
+                color: var(--text-dim);
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+            }
+
+            @media (max-width: 768px) {
+                body {
+                    padding: 1rem;
+                }
+                header {
+                    flex-direction: column;
+                    gap: 0.5rem;
+                    margin-bottom: 2rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1><a href="/">Air Quality Monitor</a></h1>
+                <span class="location">Siem Reap, Cambodia</span>
+            </header>
+            <nav>
+                <a href="/" class="nav-link">Air Quality</a>
+                <a href="/about/" class="nav-link">About</a>
+                <a href="/faq/" class="nav-link">FAQ</a>
+            </nav>
+
+            <div class="hero">
+                <div class="hero-label">Frequently Asked Questions</div>
+                <div class="hero-title">FAQ</div>
+            </div>
+
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">What is AQI?</div>
+                    <div class="faq-answer">
+                        AQI stands for Air Quality Index. It is a standardised
+                        scale used to communicate how polluted the air is. The
+                        higher the number, the worse the air quality and the
+                        greater the health risk. It ranges from 0 (perfect) to
+                        500+ (hazardous).
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">What do the AQI levels mean?</div>
+                    <div class="faq-answer">
+                        <table class="aqi-table">
+                            <thead>
+                                <tr>
+                                    <th>AQI Range</th>
+                                    <th>Category</th>
+                                    <th>Who is affected</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>0–50</td>
+                                    <td>Good</td>
+                                    <td>None</td>
+                                </tr>
+                                <tr>
+                                    <td>51–100</td>
+                                    <td>Moderate</td>
+                                    <td>Unusually sensitive individuals</td>
+                                </tr>
+                                <tr>
+                                    <td>101–150</td>
+                                    <td>Unhealthy for Sensitive Groups</td>
+                                    <td>
+                                        People with asthma, heart or lung
+                                        disease, elderly, children
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>151–200</td>
+                                    <td>Unhealthy</td>
+                                    <td>
+                                        Everyone may begin to experience effects
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>201–300</td>
+                                    <td>Very Unhealthy</td>
+                                    <td>
+                                        Everyone; serious effects more likely
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>301+</td>
+                                    <td>Hazardous</td>
+                                    <td>Everyone; emergency health warnings</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What is PM2.5, PM1.0, and PM10?
+                    </div>
+                    <div class="faq-answer">
+                        PM stands for Particulate Matter. Tiny particles
+                        suspended in the air. The number refers to the maximum
+                        size of particle in micrometres (µm). PM2.5 particles
+                        are 2.5µm or smaller and are the most dangerous because
+                        they can penetrate deep into the lungs. PM1.0 are even
+                        finer. PM10 includes larger dust and pollen particles.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Where is the sensor located?</div>
+                    <div class="faq-answer">
+                        The sensor is located outdoors in Siem Reap, Cambodia.
+                        It monitors the immediate local environment and does not
+                        represent city-wide air quality.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What sensor hardware is used?
+                    </div>
+                    <div class="faq-answer">
+                        The outdoor sensor is a Sensirion SEN55, which measures
+                        PM1.0, PM2.5, PM4.0, PM10, temperature, and humidity. It
+                        is connected to an ESP32 C3 Mini microcontroller running
+                        ESPHome and reports to Home Assistant over Wi-Fi.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How often does the data update?
+                    </div>
+                    <div class="faq-answer">
+                        The live readings on the main page refresh every 60
+                        seconds. The 24-hour history graphs display data
+                        averaged into 5-minute buckets.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">How is the AQI calculated?</div>
+                    <div class="faq-answer">
+                        AQI is derived from the PM2.5 reading using the US EPA
+                        formula. A correction factor is also applied to account
+                        for humidity, which can cause optical particle counters
+                        to overestimate PM2.5 concentrations in humid conditions
+                        which is very common in Cambodia.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Why does the AQI sometimes spike suddenly?
+                    </div>
+                    <div class="faq-answer">
+                        Short spikes are usually caused by localised sources
+                        such as motorbike exhaust, burning, or cooking smoke
+                        passing near the sensor. The 5-minute averaged graphs
+                        smooth out these brief events to show broader trends.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is the source code available?
+                    </div>
+                    <div class="faq-answer">
+                        Yes, the project is open source and available on
+                        <a
+                            href="https://github.com/chillbreeze/air.siemreap.cloud"
+                            target="_blank"
+                            >GitHub</a
+                        >.
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                <div class="footer-text">
+                    Air Quality Monitor &mdash; Siem Reap, Cambodia
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>
