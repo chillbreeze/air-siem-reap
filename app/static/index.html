@@ -200,6 +200,17 @@
             margin-top: 0.25rem;
         }
 
+        .pm-card-link, .metric-link, .hero-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: background 0.2s;
+        }
+
+        .pm-card-link:hover, .metric-link:hover, .hero-link:hover {
+            background: #0f0f0f;
+        }
+
         footer {
             text-align: center;
             padding-top: 2rem;
@@ -280,61 +291,61 @@
         <main>
             <nav>
                 <a href="/" class="nav-link">AIR QUALITY</a>
-                <a href="/learn/" class="nav-link">ABOUT</a>
+                <a href="/about/" class="nav-link">ABOUT</a>
             </nav>
 
-            <section class="hero">
+            <a href="/metric/aqi/" class="hero hero-link">
                 <div class="aqi-label">Air Quality Index</div>
                 <div class="aqi-value loading" id="aqi-raw">--</div>
                 <div class="aqi-status" id="aqi-status">Loading...</div>
-            </section>
+            </a>
 
             <section class="pm-section">
                 <h2>Particulate Matter</h2>
                 <div class="pm-grid">
-                    <div class="pm-card">
+                    <a href="/metric/pm1/" class="pm-card pm-card-link">
                         <div class="pm-label">PM 1.0</div>
                         <div class="pm-value loading" id="pm1">--</div>
                         <div class="pm-unit">&micro;g/m&sup3;</div>
-                    </div>
-                    <div class="pm-card">
+                    </a>
+                    <a href="/metric/pm25/" class="pm-card pm-card-link">
                         <div class="pm-label">PM 2.5</div>
                         <div class="pm-value loading" id="pm25">--</div>
                         <div class="pm-unit">&micro;g/m&sup3;</div>
-                    </div>
+                    </a>
                 </div>
             </section>
 
             <section class="pm-section">
                 <h2>Climate</h2>
                 <div class="metrics-grid">
-                    <div class="metric">
+                    <a href="/metric/temperature/" class="metric metric-link">
                         <div class="metric-label">Temperature</div>
                         <div class="metric-value loading" id="temp">--</div>
                         <div class="metric-unit">&deg;C</div>
-                    </div>
-                    <div class="metric">
+                    </a>
+                    <a href="/metric/heat_index/" class="metric metric-link">
                         <div class="metric-label">Feels Like</div>
                         <div class="metric-value loading" id="heat-index">--</div>
                         <div class="metric-unit">&deg;C</div>
-                    </div>
+                    </a>
 
-                    <div class="metric">
+                    <a href="/metric/humidity/" class="metric metric-link">
                         <div class="metric-label">Humidity</div>
                         <div class="metric-value loading" id="humidity">--</div>
                         <div class="metric-unit">%</div>
-                    </div>
-                    <div class="metric">
+                    </a>
+                    <a href="/metric/dew_point/" class="metric metric-link">
                         <div class="metric-label">Dew Point</div>
                         <div class="metric-value loading" id="dew-point">--</div>
                         <div class="metric-unit">&deg;C</div>
-                    </div>
+                    </a>
 
-                    <div class="metric">
+                    <a href="/metric/pressure/" class="metric metric-link">
                         <div class="metric-label">Pressure</div>
                         <div class="metric-value loading" id="pressure">--</div>
                         <div class="metric-unit">hPa</div>
-                    </div>
+                    </a>
             </div>
             </section>
         </main>

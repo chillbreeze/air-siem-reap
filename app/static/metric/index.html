@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality - Siem Reap</title>
+    <link rel="icon" href="/images/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --text: #fafafa;
+            --text-dim: #666;
+            --card-bg: #141414;
+            --border: #222;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header h1 {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            font-size: 1.25rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        header h1 a { color: inherit; text-decoration: none; }
+
+        .location { font-size: 0.875rem; color: var(--text-dim); }
+
+        .nav-link {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+            text-decoration: none;
+            margin-top: 0.4rem;
+            display: inline-block;
+            transition: color 0.2s;
+        }
+
+        .nav-link + .nav-link { margin-left: 1.5rem; }
+        .nav-link:hover { color: var(--text); }
+
+        nav { margin-bottom: 3rem; }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 0 4rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 3rem;
+        }
+
+        .hero-label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-title {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-unit {
+            font-size: 1rem;
+            color: var(--text-dim);
+        }
+
+        .chart-wrapper {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-text {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            header { flex-direction: column; gap: 0.5rem; margin-bottom: 2rem; }
+            .chart-container { height: 250px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><a href="/">Air Quality Monitor</a></h1>
+            <span class="location">Siem Reap, Cambodia</span>
+        </header>
+        <nav>
+            <a href="/" class="nav-link">Air Quality</a>
+            <a href="/about/" class="nav-link">About</a>
+        </nav>
+
+        <div class="hero">
+            <div class="hero-label">24-Hour History</div>
+            <div class="hero-title" id="metric-name">--</div>
+            <div class="hero-unit" id="metric-unit"></div>
+        </div>
+
+        <div class="chart-wrapper">
+            <div class="chart-title">Last 24 Hours</div>
+            <div class="chart-container">
+                <canvas id="chart"></canvas>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-text">Air Quality Monitor &mdash; Siem Reap, Cambodia</div>
+            <div class="footer-text" style="margin-top:0.5rem;">Updates every 5 minutes</div>
+        </footer>
+    </div>
+
+    <script>
+        const METRICS = {
+            pm1:        { label: 'PM 1.0',       unit: 'µg/m³', color: '#a855f7', bucketMinutes: 5 },
+            pm25:       { label: 'PM 2.5',       unit: 'µg/m³', color: '#f97316', bucketMinutes: 5 },
+            pm10:       { label: 'PM 10',         unit: 'µg/m³', color: '#ef4444', bucketMinutes: 5 },
+            aqi:        { label: 'AQI',           unit: '',      color: '#22c55e', bucketMinutes: 5 },
+            temperature:{ label: 'Temperature',  unit: '°C',    color: '#eab308', bucketMinutes: 5 },
+            humidity:   { label: 'Humidity',      unit: '%',     color: '#38bdf8', bucketMinutes: 5 },
+            pressure:   { label: 'Pressure',      unit: 'hPa',   color: '#94a3b8', bucketMinutes: 5 },
+            heat_index: { label: 'Feels Like',    unit: '°C',    color: '#fb923c', bucketMinutes: 5 },
+            dew_point:  { label: 'Dew Point',     unit: '°C',    color: '#34d399', bucketMinutes: 5 },
+        };
+
+        function downsample(data, bucketMinutes) {
+            const bucketMs = bucketMinutes * 60 * 1000;
+            const buckets = {};
+            for (const point of data) {
+                const key = Math.floor(point.x.getTime() / bucketMs) * bucketMs;
+                if (!buckets[key]) buckets[key] = [];
+                buckets[key].push(point.y);
+            }
+            return Object.entries(buckets)
+                .sort(([a], [b]) => a - b)
+                .map(([ts, vals]) => ({
+                    x: new Date(Number(ts) + bucketMs / 2),
+                    y: vals.reduce((s, v) => s + v, 0) / vals.length
+                }));
+        }
+
+        const key = window.location.pathname.split('/').filter(Boolean)[1];
+        const meta = METRICS[key] || { label: key, unit: '', color: '#fafafa' };
+
+        document.getElementById('metric-name').textContent = meta.label;
+        document.getElementById('metric-unit').textContent = meta.unit;
+        document.title = `${meta.label} - Air Quality Siem Reap`;
+
+        async function loadChart() {
+            const res = await fetch(`/api/history/${key}`);
+            if (!res.ok) {
+                document.querySelector('.chart-wrapper').innerHTML =
+                    '<div class="error-state">Failed to load data.</div>';
+                return;
+            }
+            const points = await res.json();
+            if (!points.length) {
+                document.querySelector('.chart-wrapper').innerHTML =
+                    '<div class="error-state">No data available.</div>';
+                return;
+            }
+
+            const raw = meta.bucketMinutes
+                ? downsample(points.map(p => ({ x: new Date(p.time), y: p.value })), meta.bucketMinutes)
+                : points.map(p => ({ x: new Date(p.time), y: p.value }));
+
+            const WINDOW = 15;
+            const data = raw.map((point, i) => {
+                const start = Math.max(0, i - Math.floor(WINDOW / 2));
+                const end = Math.min(raw.length, start + WINDOW);
+                const slice = raw.slice(start, end);
+                const avg = slice.reduce((sum, p) => sum + p.y, 0) / slice.length;
+                return { x: point.x, y: avg };
+            });
+
+            new Chart(document.getElementById('chart'), {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        data,
+                        borderColor: meta.color,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.3,
+                        fill: true,
+                        backgroundColor: meta.color + '18',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#141414',
+                            borderColor: '#222',
+                            borderWidth: 1,
+                            titleColor: '#666',
+                            bodyColor: '#fafafa',
+                            callbacks: {
+                                label: ctx => `${ctx.parsed.y.toFixed(1)} ${meta.unit}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { tooltipFormat: 'HH:mm', displayFormats: { hour: 'HH:mm' } },
+                            grid: { color: '#222' },
+                            ticks: { color: '#666', maxTicksLimit: 8 }
+                        },
+                        y: {
+                            grid: { color: '#222' },
+                            ticks: {
+                                color: '#666',
+                                callback: val => `${val} ${meta.unit}`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        loadChart();
+    </script>
+</body>
+</html>

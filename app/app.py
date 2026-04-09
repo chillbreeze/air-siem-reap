@@ -5,6 +5,7 @@ Proxies requests to Home Assistant API and serves the static dashboard.
 """
 
 import os
+from datetime import datetime, timezone, timedelta
 from flask import Flask, jsonify, send_from_directory
 import requests
 
@@ -67,10 +68,10 @@ def images(filename):
     return send_from_directory('static/images', filename)
 
 
-@app.route('/learn/')
-def learn():
-    """Serve the learn page."""
-    return send_from_directory('static/learn', 'index.html')
+@app.route('/about/')
+def about():
+    """Serve the about page."""
+    return send_from_directory('static/about', 'index.html')
 
 
 @app.route('/api/sensors')
@@ -87,6 +88,59 @@ def get_sensors():
                 data[key] = state
     
     return jsonify(data)
+
+
+@app.route('/metric/<entity_key>/')
+def metric(entity_key):
+    """Serve the metric history graph page."""
+    return send_from_directory('static/metric', 'index.html')
+
+
+@app.route('/api/history/<entity_key>')
+def get_history(entity_key):
+    """Fetch 24h of history for a sensor from Home Assistant."""
+    entity_id = ENTITIES.get(entity_key)
+    if not entity_id:
+        return jsonify({'error': 'Unknown entity'}), 404
+
+    end = datetime.now(timezone.utc)
+    start = end - timedelta(hours=24)
+
+    headers = {
+        'Authorization': f'Bearer {HA_TOKEN}',
+        'Content-Type': 'application/json',
+    }
+
+    try:
+        response = requests.get(
+            f'{HA_URL}/api/history/period/{start.isoformat()}',
+            headers=headers,
+            params={
+                'filter_entity_id': entity_id,
+                'end_time': end.isoformat(),
+                'minimal_response': True,
+                'no_attributes': True,
+            },
+            timeout=30
+        )
+        response.raise_for_status()
+        history = response.json()
+
+        points = []
+        if history and history[0]:
+            for item in history[0]:
+                try:
+                    points.append({
+                        'time': item['last_changed'],
+                        'value': float(item['state'])
+                    })
+                except (ValueError, KeyError):
+                    pass
+
+        return jsonify(points)
+    except requests.RequestException as e:
+        app.logger.error(f'Error fetching history for {entity_id}: {e}')
+        return jsonify({'error': 'Failed to fetch history'}), 500
 
 
 @app.route('/api/health')
