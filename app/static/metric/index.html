@@ -89,12 +89,33 @@
             font-size: clamp(2rem, 8vw, 4rem);
             font-weight: 700;
             line-height: 1;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-current {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.25rem;
         }
 
         .hero-unit {
             font-size: 1rem;
             color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .minmax {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+        }
+
+        .minmax span {
+            font-family: 'Space Mono', monospace;
+            color: var(--text);
         }
 
         .chart-wrapper {
@@ -155,9 +176,10 @@
         </nav>
 
         <div class="hero">
-            <div class="hero-label">24-Hour History</div>
             <div class="hero-title" id="metric-name">--</div>
+            <div class="hero-current" id="current-value" style="color: var(--text-dim);">--</div>
             <div class="hero-unit" id="metric-unit"></div>
+            <div class="minmax">High <span id="mm-high">--</span> &middot; Low <span id="mm-low">--</span></div>
         </div>
 
         <div class="chart-wrapper">
@@ -208,6 +230,27 @@
         document.getElementById('metric-name').textContent = meta.label;
         document.getElementById('metric-unit').textContent = meta.unit;
         document.title = `${meta.label} - Air Quality Siem Reap`;
+
+        async function loadCurrent() {
+            const res = await fetch('/api/sensors');
+            if (!res.ok) return;
+            const data = await res.json();
+            const val = data[key];
+            if (val === undefined) return;
+            const decimals = ['temperature', 'heat_index', 'dew_point'].includes(key) ? 1 : 0;
+            const el = document.getElementById('current-value');
+            el.textContent = val.toFixed(decimals);
+            el.style.color = meta.color;
+        }
+
+        async function loadMinMax() {
+            const res = await fetch(`/api/minmax/${key}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            const decimals = ['temperature', 'heat_index', 'dew_point'].includes(key) ? 1 : 0;
+            if (data.max !== null) document.getElementById('mm-high').textContent = data.max.toFixed(decimals);
+            if (data.min !== null) document.getElementById('mm-low').textContent = data.min.toFixed(decimals);
+        }
 
         async function loadChart() {
             const res = await fetch(`/api/history/${key}`);
@@ -285,6 +328,8 @@
             });
         }
 
+        loadCurrent();
+        loadMinMax();
         loadChart();
     </script>
 </body>

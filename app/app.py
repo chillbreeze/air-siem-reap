@@ -8,12 +8,19 @@ import os
 from datetime import datetime, timezone, timedelta
 from flask import Flask, jsonify, send_from_directory
 import requests
+from influxdb_client import InfluxDBClient
 
 app = Flask(__name__, static_folder='static')
 
 # Configuration from environment variables
 HA_URL = os.environ.get('HA_URL', 'http://homeassistant.local:8123')
 HA_TOKEN = os.environ.get('HA_TOKEN', '')
+
+# InfluxDB configuration
+INFLUX_URL = os.environ.get('INFLUX_URL', 'http://localhost:8086')
+INFLUX_TOKEN = os.environ.get('INFLUX_TOKEN', '')
+INFLUX_ORG = os.environ.get('INFLUX_ORG', '')
+INFLUX_BUCKET = os.environ.get('INFLUX_BUCKET', 'home')
 
 # Entity IDs - customize these to match your Home Assistant setup
 ENTITIES = {
@@ -141,6 +148,72 @@ def get_history(entity_key):
     except requests.RequestException as e:
         app.logger.error(f'Error fetching history for {entity_id}: {e}')
         return jsonify({'error': 'Failed to fetch history'}), 500
+
+
+# (measurement, entity_id) — measurement is the unit label used by HA's InfluxDB integration
+# AQI uses the full entity ID as measurement; others use their unit symbol
+INFLUX_ENTITIES = {
+    'aqi':         ('sensor.environmental_outdoor_sen55_aqi_outdoor', None),
+    'pm1':         ('μg/m³', 'environmental_outdoor_sen55_pm1_0'),
+    'pm25':        ('μg/m³', 'environmental_outdoor_sen55_pm2_5'),
+    'temperature': ('°C',    'environmental_outdoor_sen55_temperature'),
+    'humidity':    ('%',     'environmental_outdoor_sen55_humidity'),
+    'heat_index':  ('°C',    'environmental_outdoor_sen55_heat_index_outdoor'),
+    'dew_point':   ('°C',    'environmental_outdoor_sen55_dew_point_outdoor'),
+    'pressure':    ('hPa',   'bme688_pressure_indoor_01'),
+}
+
+
+@app.route('/api/minmax/<entity_key>')
+def get_minmax(entity_key):
+    """Fetch 24h min and max for a sensor from InfluxDB."""
+    entry = INFLUX_ENTITIES.get(entity_key)
+    if not entry:
+        return jsonify({'error': 'Unknown entity'}), 404
+
+    measurement, entity_id = entry
+
+    if entity_id is None:
+        # AQI: measurement IS the full entity ID, field is 'value'
+        query = f'''
+from(bucket: "{INFLUX_BUCKET}")
+  |> range(start: -24h)
+  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+  |> filter(fn: (r) => r["_field"] == "value")
+'''
+    else:
+        query = f'''
+from(bucket: "{INFLUX_BUCKET}")
+  |> range(start: -24h)
+  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+  |> filter(fn: (r) => r["entity_id"] == "{entity_id}")
+  |> filter(fn: (r) => r["_field"] == "value")
+'''
+
+    min_query = query + '  |> min()'
+    max_query = query + '  |> max()'
+
+    try:
+        with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
+            qapi = client.query_api()
+            min_result = qapi.query(min_query)
+            max_result = qapi.query(max_query)
+
+            min_val = None
+            max_val = None
+
+            for table in min_result:
+                for record in table.records:
+                    min_val = record.get_value()
+
+            for table in max_result:
+                for record in table.records:
+                    max_val = record.get_value()
+
+        return jsonify({'min': min_val, 'max': max_val})
+    except Exception as e:
+        app.logger.error(f'InfluxDB error for {entity_key}: {e}')
+        return jsonify({'error': 'Failed to fetch min/max'}), 500
 
 
 @app.route('/api/health')

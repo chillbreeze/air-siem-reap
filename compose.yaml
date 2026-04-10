@@ -12,6 +12,10 @@ services:
     environment:
       - HA_URL
       - HA_TOKEN
+      - INFLUX_URL
+      - INFLUX_TOKEN
+      - INFLUX_ORG
+      - INFLUX_BUCKET
       - ENTITY_AQI=sensor.environmental_outdoor_sen55_aqi_outdoor
       - ENTITY_AQI_CORRECTED=sensor.outdoor_pm2_5_corrected_aqi
       - ENTITY_PM1=sensor.environmental_outdoor_sen55_pm1_0
@@ -24,7 +28,7 @@ services:
       - ENTITY_HEAT_INDEX=sensor.environmental_outdoor_sen55_heat_index_outdoor
       - ENTITY_DEW_POINT=sensor.environmental_outdoor_sen55_dew_point_outdoor
     command: |
-      bash -c "pip install --no-cache-dir flask requests gunicorn &&
+      bash -c "pip install --no-cache-dir flask requests gunicorn influxdb-client &&
                gunicorn --bind 0.0.0.0:5080 --workers 2 app:app"
     healthcheck:
       test:
