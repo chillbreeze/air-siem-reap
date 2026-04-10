@@ -476,7 +476,7 @@
 
             // Update timestamp
             document.getElementById('updated').textContent = 
-                'Last updated: ' + new Date().toLocaleTimeString();
+                'Last updated: ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
         }
 
         // Fetch data from the backend API
