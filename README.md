@@ -7,11 +7,11 @@ A personal project demonstrating real-time air quality and climate monitoring fo
 <table>
   <tr>
     <td align="center"><img src="screenshots/aqi-website-screenshot-home.png" width="400" /><br/><sub>Home Page</sub></td>
-    <td align="center"><img src="screenshots/aqi-website-screenshot-aqi.png" width="400" /><br/><sub>AQI</sub></td>
+    <td align="center"><img src="screenshots/aqi-website-screenshot-pm.png" width="400" /><br/><sub>PM 2.5</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="screenshots/aqi-website-screenshot-temp.png" width="400" /><br/><sub>Temperature</sub></td>
     <td align="center"><img src="screenshots/aqi-website-screenshot-humidity.png" width="400" /><br/><sub>Humidity</sub></td>
+    <td align="center"><img src="screenshots/aqi-website-screenshot-faq.png" width="400" /><br/><sub>FAQ</sub></td>
   </tr>
 </table>
 
