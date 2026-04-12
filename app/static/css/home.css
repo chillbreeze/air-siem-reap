@@ -23,7 +23,7 @@
 }
 
 .aqi-value {
-    font-family: 'Space Mono', monospace;
+    font-family: "Space Mono", monospace;
     font-size: clamp(6rem, 20vw, 12rem);
     font-weight: 700;
     line-height: 1;
@@ -63,7 +63,7 @@
 }
 
 .metric-value {
-    font-family: 'Space Mono', monospace;
+    font-family: "Space Mono", monospace;
     font-size: clamp(2.5rem, 6vw, 3.5rem);
     font-weight: 700;
     line-height: 1;
@@ -108,7 +108,7 @@
 }
 
 .pm-value {
-    font-family: 'Space Mono', monospace;
+    font-family: "Space Mono", monospace;
     font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 700;
 }
@@ -122,6 +122,8 @@
 .pm-card-link,
 .metric-link,
 .hero-link {
+    display: inline-block;
+    padding: 20px;
     text-decoration: none;
     color: inherit;
     display: block;
@@ -147,12 +149,24 @@
 }
 
 /* AQI color classes */
-.aqi-good { color: var(--accent-good); }
-.aqi-moderate { color: var(--accent-moderate); }
-.aqi-unhealthy-sensitive { color: var(--accent-unhealthy-sensitive); }
-.aqi-unhealthy { color: var(--accent-unhealthy); }
-.aqi-very-unhealthy { color: var(--accent-very-unhealthy); }
-.aqi-hazardous { color: var(--accent-hazardous); }
+.aqi-good {
+    color: var(--accent-good);
+}
+.aqi-moderate {
+    color: var(--accent-moderate);
+}
+.aqi-unhealthy-sensitive {
+    color: var(--accent-unhealthy-sensitive);
+}
+.aqi-unhealthy {
+    color: var(--accent-unhealthy);
+}
+.aqi-very-unhealthy {
+    color: var(--accent-very-unhealthy);
+}
+.aqi-hazardous {
+    color: var(--accent-hazardous);
+}
 
 /* Loading animation */
 .loading {
@@ -161,8 +175,13 @@
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.6; }
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.6;
+    }
 }
 
 @media (max-width: 768px) {

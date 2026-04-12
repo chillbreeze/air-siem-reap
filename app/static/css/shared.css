@@ -1,7 +1,7 @@
 :root {
     --bg: #0a0a0a;
     --text: #fafafa;
-    --text-dim: #666;
+    --text-dim: #888;
     --card-bg: #141414;
     --border: #222;
 }
@@ -13,7 +13,7 @@
 }
 
 body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: "DM Sans", sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -35,7 +35,7 @@ header {
 }
 
 header h1 {
-    font-family: 'DM Sans', sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-weight: 500;
     font-size: 1.25rem;
     letter-spacing: 0.05em;
@@ -59,8 +59,10 @@ header h1 a {
     letter-spacing: 0.15em;
     color: var(--text-dim);
     text-decoration: none;
-    margin-top: 0.4rem;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    padding: 0 0.25rem;
     transition: color 0.2s;
 }
 
