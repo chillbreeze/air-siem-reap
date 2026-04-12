@@ -1,0 +1,16 @@
+name: Lighthouse Audit
+on: [push]
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Audit live site
+        uses: treosh/lighthouse-ci-action@v9
+        with:
+          # Replace the URL below with your actual website URL
+          urls: "https://air.siemreap.cloud"
+          uploadArtifacts: true # This saves the report so you can download it
+          temporaryPublicStorage: true # This gives you a public link to the report
