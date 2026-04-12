@@ -122,8 +122,6 @@
 .pm-card-link,
 .metric-link,
 .hero-link {
-    display: inline-block;
-    padding: 20px;
     text-decoration: none;
     color: inherit;
     display: block;
