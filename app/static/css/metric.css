@@ -1,11 +1,11 @@
 nav {
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 
 .hero {
     text-align: center;
-    padding: 3rem 0 4rem;
-    margin-bottom: 3rem;
+    padding: 2rem 0 2.5rem;
+    margin-bottom: 2rem;
 }
 
 .hero-label {
@@ -21,7 +21,7 @@ nav {
     font-size: clamp(1.4rem, 5.6vw, 2.8rem);
     font-weight: 700;
     line-height: 1;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
 
 .hero-current {
@@ -35,7 +35,7 @@ nav {
 .hero-unit {
     font-size: 1rem;
     color: var(--text-dim);
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .updated {
@@ -43,7 +43,7 @@ nav {
     font-weight: 300;
     color: var(--text-dim);
     letter-spacing: 0.05em;
-    margin-top: 1.5rem;
+    margin-top: 0.75rem;
 }
 
 .chart-header {
@@ -69,7 +69,7 @@ nav {
     background: var(--card-bg);
     border: 1px solid var(--border);
     padding: 2rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 
 .chart-title {
@@ -84,6 +84,122 @@ nav {
     height: 400px;
 }
 
+/* Desktop height breakpoints — independent of width */
+
+/* Shorter desktop monitors ~1080px tall */
+@media (max-height: 1080px) and (min-width: 769px) {
+    nav {
+        margin-bottom: 1.5rem;
+    }
+
+    .hero {
+        padding: 1.5rem 0 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-container {
+        height: 320px;
+    }
+}
+
+/* Laptop screens ~900px tall (e.g. 1366×768, 1440×900) */
+@media (max-height: 900px) and (min-width: 769px) {
+    nav {
+        margin-bottom: 1rem;
+    }
+
+    .hero {
+        padding: 1rem 0 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero-title {
+        font-size: clamp(1.2rem, 4vw, 2.2rem);
+        margin-bottom: 0.75rem;
+    }
+
+    .hero-current {
+        font-size: clamp(2.8rem, 7vw, 5rem);
+    }
+
+    .hero-unit {
+        margin-bottom: 0.25rem;
+    }
+
+    .updated {
+        margin-top: 0.5rem;
+    }
+
+    .chart-wrapper {
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .chart-container {
+        height: 240px;
+    }
+}
+
+/* Short desktop ~750px tall (e.g. 1280×720) */
+@media (max-height: 750px) and (min-width: 769px) {
+    nav {
+        margin-bottom: 0.75rem;
+    }
+
+    .hero {
+        padding: 0.75rem 0 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .hero-title {
+        font-size: clamp(1.1rem, 3.5vw, 1.8rem);
+        margin-bottom: 0.5rem;
+    }
+
+    .hero-current {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+    }
+
+    .chart-wrapper {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .chart-header {
+        margin-bottom: 0.75rem;
+    }
+
+    .chart-container {
+        height: 200px;
+    }
+}
+
+/* Tablet / small mobile — width-based */
+@media (max-width: 768px) {
+    nav {
+        margin-bottom: 1.25rem;
+    }
+
+    .hero {
+        padding: 1rem 0 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .hero-title {
+        margin-bottom: 0.75rem;
+    }
+
+    .chart-wrapper {
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .chart-container {
+        height: 240px;
+    }
+}
+
+/* Mobile — 600px wide */
 @media (max-width: 600px) {
     .chart-header {
         flex-direction: column;
@@ -92,8 +208,56 @@ nav {
     }
 }
 
-@media (max-width: 768px) {
+/* Small mobile — 430px wide, 900px tall */
+@media (max-width: 430px), (max-height: 800px) {
+    nav {
+        margin-bottom: 1rem;
+    }
+
+    .hero {
+        padding: 0.75rem 0 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero-current {
+        font-size: clamp(2.5rem, 14vw, 4rem);
+    }
+
+    .hero-title {
+        font-size: clamp(1.1rem, 4.5vw, 2rem);
+        margin-bottom: 0.5rem;
+    }
+
+    .hero-unit {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .updated {
+        margin-top: 0.5rem;
+    }
+
+    .chart-wrapper {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .chart-header {
+        margin-bottom: 0.75rem;
+    }
+
     .chart-container {
-        height: 250px;
+        height: 200px;
+    }
+}
+
+/* Very small phones — 360px wide or short screens */
+@media (max-width: 360px), (max-height: 700px) {
+    .hero {
+        padding: 0.5rem 0 0.75rem;
+    }
+
+    .chart-container {
+        height: 170px;
     }
 }
