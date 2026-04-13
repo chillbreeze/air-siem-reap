@@ -64,7 +64,7 @@
                         <a href="/metric/voc/" class="pm-card pm-card-link">
                             <div class="pm-label">
                                 VOC Index
-                                <button class="info-btn" onclick="event.stopPropagation();toggleTip('voc-tip')" aria-label="About VOC Index">
+                                <button class="info-btn" onclick="toggleTip(event, 'voc-tip')" aria-label="About VOC Index">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                                     <span class="tooltip-float">VOC and NOx values shown here are index numbers (0–500), not concentration measurements. A higher number means worse air quality. The index is calculated by the sensor's onboard algorithm.</span>
                                 </button>
@@ -76,7 +76,7 @@
                         <a href="/metric/nox/" class="pm-card pm-card-link">
                             <div class="pm-label">
                                 NOx Index
-                                <button class="info-btn" onclick="event.stopPropagation();toggleTip('nox-tip')" aria-label="About NOx Index">
+                                <button class="info-btn" onclick="toggleTip(event, 'nox-tip')" aria-label="About NOx Index">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                                     <span class="tooltip-float">VOC and NOx values shown here are index numbers (0–500), not concentration measurements. A higher number means worse air quality. The index is calculated by the sensor's onboard algorithm.</span>
                                 </button>
@@ -319,7 +319,9 @@
                 }
             }
 
-            function toggleTip(id) {
+            function toggleTip(event, id) {
+                event.stopPropagation();
+                event.preventDefault();
                 document.getElementById(id).classList.toggle('open');
             }
 
