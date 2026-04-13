@@ -38,14 +38,6 @@ nav {
     margin-bottom: 0.5rem;
 }
 
-.updated {
-    font-size: 0.75rem;
-    font-weight: 300;
-    color: var(--text-dim);
-    letter-spacing: 0.05em;
-    margin-top: 0.75rem;
-}
-
 .chart-header {
     display: flex;
     justify-content: space-between;

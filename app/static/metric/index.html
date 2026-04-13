@@ -28,7 +28,6 @@
             <div class="hero-title" id="metric-name">--</div>
             <div class="hero-current" id="current-value" style="color: var(--text-dim);">--</div>
             <div class="hero-unit" id="metric-unit"></div>
-            <div class="updated">Updates every 5 minutes</div>
         </div>
 
         <div class="chart-wrapper">
@@ -142,6 +141,20 @@
                 return { x: point.x, y: avg };
             });
 
+            const updatesLabel = {
+                id: 'updatesLabel',
+                afterDraw(chart) {
+                    const { ctx, chartArea: { left, right, bottom }, height } = chart;
+                    ctx.save();
+                    ctx.font = '300 11px "DM Sans", sans-serif';
+                    ctx.fillStyle = '#666';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText('Updates every 5 minutes', (left + right) / 2, height);
+                    ctx.restore();
+                }
+            };
+
             new Chart(document.getElementById('chart'), {
                 type: 'line',
                 data: {
@@ -159,6 +172,9 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
+                    layout: {
+                        padding: { bottom: 38 }
+                    },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -187,7 +203,8 @@
                             }
                         }
                     }
-                }
+                },
+                plugins: [updatesLabel]
             });
         }
 
