@@ -35,8 +35,6 @@ ENTITIES = {
     'dew_point': os.environ.get('ENTITY_DEW_POINT', 'sensor.air_quality_dew_point'),
     'pressure': os.environ.get('ENTITY_PRESSURE', 'sensor.air_quality_pressure'),
     'aqi_corrected': os.environ.get('ENTITY_AQI_CORRECTED', 'sensor.outdoor_pm2_5_corrected_aqi'),
-    'voc': 'sensor.environmental_outdoor_sen55_voc_index',
-    'nox': 'sensor.environmental_outdoor_sen55_nox_index',
 }
 
 
@@ -163,8 +161,6 @@ INFLUX_ENTITIES = {
     'heat_index':  ('°C',    'environmental_outdoor_sen55_heat_index_outdoor'),
     'dew_point':   ('°C',    'environmental_outdoor_sen55_dew_point_outdoor'),
     'pressure':    ('hPa',   'bme688_pressure_indoor_01'),
-    'voc':         ('sensor.environmental_outdoor_sen55_voc_index', None),
-    'nox':         ('sensor.environmental_outdoor_sen55_nox_index', None),
 }
 
 

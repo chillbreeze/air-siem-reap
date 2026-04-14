@@ -59,36 +59,6 @@
                 </section>
 
                 <section class="pm-section">
-                    <h2>Gas &amp; Volatile Compounds</h2>
-                    <div class="pm-grid">
-                        <a href="/metric/voc/" class="pm-card pm-card-link">
-                            <div class="pm-label">
-                                VOC Index
-                                <button class="info-btn" onclick="toggleTip(event, 'voc-tip')" aria-label="About VOC Index">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                                    <span class="tooltip-float">VOC and NOx values shown here are index numbers (0–500), not concentration measurements. A higher number means worse air quality. The index is calculated by the sensor's onboard algorithm.</span>
-                                </button>
-                            </div>
-                            <div class="tooltip-inline" id="voc-tip">VOC and NOx values shown here are index numbers (0–500), not concentration measurements. A higher number means worse air quality. The index is calculated by the sensor's onboard algorithm.</div>
-                            <div class="pm-value loading" id="voc">--</div>
-                            <div class="pm-unit">index</div>
-                        </a>
-                        <a href="/metric/nox/" class="pm-card pm-card-link">
-                            <div class="pm-label">
-                                NOx Index
-                                <button class="info-btn" onclick="toggleTip(event, 'nox-tip')" aria-label="About NOx Index">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                                    <span class="tooltip-float">VOC and NOx values shown here are index numbers (0–500), not concentration measurements. A higher number means worse air quality. The index is calculated by the sensor's onboard algorithm.</span>
-                                </button>
-                            </div>
-                            <div class="tooltip-inline" id="nox-tip">VOC and NOx values shown here are index numbers (0–500), not concentration measurements. A higher number means worse air quality. The index is calculated by the sensor's onboard algorithm.</div>
-                            <div class="pm-value loading" id="nox">--</div>
-                            <div class="pm-unit">index</div>
-                        </a>
-                    </div>
-                </section>
-
-                <section class="pm-section">
                     <h2>Climate</h2>
                     <div class="metrics-grid">
                         <a
@@ -289,14 +259,6 @@
                         formatValue(data.dew_point, 0);
                 }
 
-                // Update VOC / NOx
-                if (data.voc !== undefined) {
-                    document.getElementById("voc").textContent = formatValue(data.voc, 0);
-                }
-                if (data.nox !== undefined) {
-                    document.getElementById("nox").textContent = formatValue(data.nox, 0);
-                }
-
                 // Update timestamp
                 document.getElementById("updated").textContent =
                     "Updated " +
@@ -317,12 +279,6 @@
                 } catch (error) {
                     console.error("Error fetching sensor data:", error);
                 }
-            }
-
-            function toggleTip(event, id) {
-                event.stopPropagation();
-                event.preventDefault();
-                document.getElementById(id).classList.toggle('open');
             }
 
             // Initial fetch and set up polling
