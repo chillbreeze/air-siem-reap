@@ -5,7 +5,6 @@ Proxies requests to Home Assistant API and serves the static dashboard.
 """
 
 import os
-from datetime import datetime, timezone, timedelta
 from flask import Flask, jsonify, send_from_directory
 import requests
 from influxdb_client import InfluxDBClient
@@ -102,17 +101,38 @@ def sitemap():
 
 @app.route('/api/sensors')
 def get_sensors():
-    """Fetch all sensor data from Home Assistant."""
+    """Fetch the most recent value for each sensor from InfluxDB."""
     data = {}
-    
-    for key, entity_id in ENTITIES.items():
-        state = get_ha_state(entity_id)
-        if state is not None and state not in ('unknown', 'unavailable'):
-            try:
-                data[key] = float(state)
-            except ValueError:
-                data[key] = state
-    
+
+    try:
+        with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
+            qapi = client.query_api()
+            for key, (measurement, entity_id) in INFLUX_ENTITIES.items():
+                if entity_id is None:
+                    query = f'''
+from(bucket: "{INFLUX_BUCKET}")
+  |> range(start: -1h)
+  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+  |> filter(fn: (r) => r["_field"] == "value")
+  |> last()
+'''
+                else:
+                    query = f'''
+from(bucket: "{INFLUX_BUCKET}")
+  |> range(start: -1h)
+  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+  |> filter(fn: (r) => r["entity_id"] == "{entity_id}")
+  |> filter(fn: (r) => r["_field"] == "value")
+  |> last()
+'''
+                result = qapi.query(query)
+                for table in result:
+                    for record in table.records:
+                        data[key] = record.get_value()
+    except Exception as e:
+        app.logger.error(f'InfluxDB error in get_sensors: {e}')
+        return jsonify({'error': 'Failed to fetch sensor data'}), 500
+
     return jsonify(data)
 
 
@@ -124,48 +144,45 @@ def metric(entity_key):
 
 @app.route('/api/history/<entity_key>')
 def get_history(entity_key):
-    """Fetch 24h of history for a sensor from Home Assistant."""
-    entity_id = ENTITIES.get(entity_key)
-    if not entity_id:
+    """Fetch 24h of history for a sensor from InfluxDB."""
+    entry = INFLUX_ENTITIES.get(entity_key)
+    if not entry:
         return jsonify({'error': 'Unknown entity'}), 404
 
-    end = datetime.now(timezone.utc)
-    start = end - timedelta(hours=24)
+    measurement, entity_id = entry
 
-    headers = {
-        'Authorization': f'Bearer {HA_TOKEN}',
-        'Content-Type': 'application/json',
-    }
+    if entity_id is None:
+        query = f'''
+from(bucket: "{INFLUX_BUCKET}")
+  |> range(start: -24h)
+  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+  |> filter(fn: (r) => r["_field"] == "value")
+'''
+    else:
+        query = f'''
+from(bucket: "{INFLUX_BUCKET}")
+  |> range(start: -24h)
+  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+  |> filter(fn: (r) => r["entity_id"] == "{entity_id}")
+  |> filter(fn: (r) => r["_field"] == "value")
+'''
 
     try:
-        response = requests.get(
-            f'{HA_URL}/api/history/period/{start.isoformat()}',
-            headers=headers,
-            params={
-                'filter_entity_id': entity_id,
-                'end_time': end.isoformat(),
-                'minimal_response': True,
-                'no_attributes': True,
-            },
-            timeout=30
-        )
-        response.raise_for_status()
-        history = response.json()
+        with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
+            qapi = client.query_api()
+            result = qapi.query(query)
 
         points = []
-        if history and history[0]:
-            for item in history[0]:
-                try:
-                    points.append({
-                        'time': item['last_changed'],
-                        'value': float(item['state'])
-                    })
-                except (ValueError, KeyError):
-                    pass
+        for table in result:
+            for record in table.records:
+                points.append({
+                    'time': record.get_time().isoformat(),
+                    'value': record.get_value(),
+                })
 
         return jsonify(points)
-    except requests.RequestException as e:
-        app.logger.error(f'Error fetching history for {entity_id}: {e}')
+    except Exception as e:
+        app.logger.error(f'InfluxDB error for {entity_key}: {e}')
         return jsonify({'error': 'Failed to fetch history'}), 500
 
 
