@@ -66,6 +66,7 @@
                 <div class="chart-title">This Year</div>
             </div>
             <div class="heatmap-grid" id="heatmap-grid"></div>
+            <div class="heatmap-legend" id="heatmap-legend"></div>
         </div>
 
         <footer>
@@ -437,6 +438,65 @@
 
                 row.appendChild(cells);
                 grid.appendChild(row);
+            }
+
+            const legend = document.getElementById('heatmap-legend');
+            if (key === 'aqi') {
+                const AQI_BANDS = [
+                    { color: '#00e400', label: 'Good' },
+                    { color: '#ffff00', label: 'Moderate' },
+                    { color: '#ff7e00', label: 'Sensitive' },
+                    { color: '#ff0000', label: 'Unhealthy' },
+                    { color: '#8f3f97', label: 'Very Unhealthy' },
+                    { color: '#7e0023', label: 'Hazardous' },
+                ];
+                const row = document.createElement('div');
+                row.className = 'heatmap-legend-aqi';
+                for (const band of AQI_BANDS) {
+                    const item = document.createElement('div');
+                    item.className = 'heatmap-swatch-item';
+                    const swatch = document.createElement('div');
+                    swatch.className = 'heatmap-swatch';
+                    swatch.style.backgroundColor = band.color;
+                    const lbl = document.createElement('span');
+                    lbl.className = 'heatmap-swatch-label';
+                    lbl.textContent = band.label;
+                    item.appendChild(swatch);
+                    item.appendChild(lbl);
+                    row.appendChild(item);
+                }
+                legend.appendChild(row);
+            } else if (minVal !== Infinity && maxVal !== -Infinity) {
+                const gradRow = document.createElement('div');
+                gradRow.className = 'heatmap-legend-gradient';
+
+                const minLbl = document.createElement('span');
+                minLbl.className = 'heatmap-gradient-label';
+                minLbl.textContent = `${minVal.toFixed(decimals)}${meta.unit ? ' ' + meta.unit : ''}`;
+
+                const blocks = document.createElement('div');
+                blocks.className = 'heatmap-legend-blocks';
+                const base = [26, 26, 26];
+                const end = hexToRgb(meta.color);
+                for (let i = 0; i < 5; i++) {
+                    const t = i / 4;
+                    const r = Math.round(base[0] + t * (end[0] - base[0]));
+                    const g = Math.round(base[1] + t * (end[1] - base[1]));
+                    const b = Math.round(base[2] + t * (end[2] - base[2]));
+                    const block = document.createElement('div');
+                    block.className = 'heatmap-swatch';
+                    block.style.backgroundColor = `rgb(${r},${g},${b})`;
+                    blocks.appendChild(block);
+                }
+
+                const maxLbl = document.createElement('span');
+                maxLbl.className = 'heatmap-gradient-label';
+                maxLbl.textContent = `${maxVal.toFixed(decimals)}${meta.unit ? ' ' + meta.unit : ''}`;
+
+                gradRow.appendChild(minLbl);
+                gradRow.appendChild(blocks);
+                gradRow.appendChild(maxLbl);
+                legend.appendChild(gradRow);
             }
         }
 

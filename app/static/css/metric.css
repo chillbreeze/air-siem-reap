@@ -296,6 +296,62 @@ nav {
     cursor: default;
 }
 
+.heatmap-legend {
+    margin-top: 14px;
+}
+
+.heatmap-legend-aqi {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    align-items: flex-start;
+}
+
+.heatmap-swatch-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 70px;
+}
+
+.heatmap-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    display: block;
+    flex-shrink: 0;
+}
+
+.heatmap-swatch-label {
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.heatmap-legend-gradient {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.heatmap-legend-blocks {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 3px;
+}
+
+.heatmap-gradient-label {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+
 .heatmap-tooltip {
     position: fixed;
     display: none;
