@@ -263,6 +263,56 @@ from(bucket: "{INFLUX_BUCKET}")
         return jsonify({'error': 'Failed to fetch 7-day history'}), 500
 
 
+@app.route('/api/heatmap/<entity_key>')
+def get_heatmap(entity_key):
+    """Fetch 365 days of daily averages for a sensor from InfluxDB."""
+    entry = INFLUX_ENTITIES.get(entity_key)
+    if not entry:
+        return jsonify({'error': 'Unknown entity'}), 404
+
+    measurement, entity_id = entry
+
+    if entity_id is None:
+        query = f'''
+from(bucket: "{INFLUX_BUCKET}")
+  |> range(start: -365d)
+  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+  |> filter(fn: (r) => r["_field"] == "value")
+  |> aggregateWindow(every: 1d, fn: mean, createEmpty: false)
+'''
+    else:
+        query = f'''
+from(bucket: "{INFLUX_BUCKET}")
+  |> range(start: -365d)
+  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+  |> filter(fn: (r) => r["entity_id"] == "{entity_id}")
+  |> filter(fn: (r) => r["_field"] == "value")
+  |> aggregateWindow(every: 1d, fn: mean, createEmpty: false)
+'''
+
+    try:
+        with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
+            qapi = client.query_api()
+            result = qapi.query(query)
+
+        points = []
+        for table in result:
+            for record in table.records:
+                val = record.get_value()
+                if val is None:
+                    continue
+                points.append({
+                    'date': record.get_time().strftime('%Y-%m-%d'),
+                    'value': round(val, 1),
+                })
+
+        points.sort(key=lambda p: p['date'])
+        return jsonify(points)
+    except Exception as e:
+        app.logger.error(f'InfluxDB heatmap error for {entity_key}: {e}')
+        return jsonify({'error': 'Failed to fetch heatmap data'}), 500
+
+
 @app.route('/api/minmax/<entity_key>')
 def get_minmax(entity_key):
     """Fetch 24h min and max for a sensor from InfluxDB."""
