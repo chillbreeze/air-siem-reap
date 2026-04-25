@@ -298,6 +298,8 @@ nav {
 
 .heatmap-legend {
     margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .heatmap-legend-aqi {
