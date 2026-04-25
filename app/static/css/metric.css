@@ -17,7 +17,7 @@ nav {
 }
 
 .hero-title {
-    font-family: 'Space Mono', monospace;
+    font-family: "Space Mono", monospace;
     font-size: clamp(1.4rem, 5.6vw, 2.8rem);
     font-weight: 700;
     line-height: 1;
@@ -25,7 +25,7 @@ nav {
 }
 
 .hero-current {
-    font-family: 'Space Mono', monospace;
+    font-family: "Space Mono", monospace;
     font-size: clamp(3rem, 10vw, 6rem);
     font-weight: 700;
     line-height: 1;
@@ -53,7 +53,7 @@ nav {
 }
 
 .minmax span {
-    font-family: 'Space Mono', monospace;
+    font-family: "Space Mono", monospace;
     color: var(--text);
 }
 
@@ -65,10 +65,11 @@ nav {
 }
 
 .chart-title {
+    font-family: "Space Mono", monospace;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--text-dim);
+    color: var(--text);
 }
 
 .chart-container {
@@ -284,7 +285,7 @@ nav {
 }
 
 .heatmap-nav-year {
-    font-family: 'Space Mono', monospace;
+    font-family: "Space Mono", monospace;
     font-size: 0.95rem;
     color: var(--text);
     letter-spacing: 0.08em;
@@ -320,7 +321,6 @@ nav {
     align-items: end;
     padding-bottom: 4px;
 }
-
 
 .heatmap-gh-dow {
     grid-area: dow;
@@ -359,7 +359,6 @@ nav {
     overflow: hidden;
     white-space: nowrap;
 }
-
 
 .heatmap-cell {
     width: 12px;
@@ -450,4 +449,3 @@ nav {
     z-index: 1000;
     white-space: nowrap;
 }
-
