@@ -181,6 +181,8 @@
             </footer>
         </div>
 
+        <div class="heatmap-tooltip" id="heatmap-tooltip"></div>
+
         <script>
             const METRICS = {
                 pm1: {
@@ -728,7 +730,12 @@ function hexToRgb(hex) {
                                     tooltip.style.display = "block";
                                 });
                                 cell.addEventListener("mousemove", (e) => {
-                                    tooltip.style.left = e.clientX + 14 + "px";
+                                    const tw = tooltip.offsetWidth;
+                                    let left = e.clientX + 14;
+                                    if (left + tw > window.innerWidth - 4) {
+                                        left = e.clientX - tw - 14;
+                                    }
+                                    tooltip.style.left = Math.max(4, left) + "px";
                                     tooltip.style.top = e.clientY - 32 + "px";
                                 });
                                 cell.addEventListener("mouseleave", () => {
@@ -765,7 +772,5 @@ function hexToRgb(hex) {
             loadChart7d();
             loadHeatmap();
         </script>
-
-        <div class="heatmap-tooltip" id="heatmap-tooltip"></div>
     </body>
 </html>
