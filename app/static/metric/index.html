@@ -30,6 +30,7 @@
         />
         <link rel="stylesheet" href="/static/css/shared.css" />
         <link rel="stylesheet" href="/static/css/metric.css" />
+        <script>(function(){var t=localStorage.getItem('theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');})();</script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     </head>
@@ -52,6 +53,10 @@
             <nav>
                 <a href="/" class="nav-link">Home</a>
                 <a href="/faq/" class="nav-link">FAQ</a>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" type="button">
+                    <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
             </nav>
 
             <div class="hero">
@@ -184,6 +189,28 @@
         <div class="heatmap-tooltip" id="heatmap-tooltip"></div>
 
         <script>
+            let chart24h = null;
+            let chart7d = null;
+            let heatmapRefresh = null;
+
+            function chartColors() {
+                const light = document.documentElement.getAttribute('data-theme') === 'light';
+                return {
+                    grid: light ? '#e0e0e0' : '#222',
+                    tick: light ? '#999' : '#666',
+                    tooltipBg: light ? '#ffffff' : '#141414',
+                    tooltipBorder: light ? '#e0e0e0' : '#222',
+                    tooltipTitle: light ? '#999' : '#666',
+                    tooltipBody: light ? '#111111' : '#fafafa',
+                };
+            }
+
+            function getHeatmapBase() {
+                return getComputedStyle(document.documentElement)
+                    .getPropertyValue('--heatmap-base').trim()
+                    .split(',').map(Number);
+            }
+
             const METRICS = {
                 pm1: {
                     label: "PM 1.0",
@@ -350,7 +377,8 @@
                     },
                 };
 
-                new Chart(document.getElementById("chart"), {
+                const c = chartColors();
+                chart24h = new Chart(document.getElementById("chart"), {
                     type: "line",
                     data: {
                         datasets: [
@@ -375,11 +403,11 @@
                         plugins: {
                             legend: { display: false },
                             tooltip: {
-                                backgroundColor: "#141414",
-                                borderColor: "#222",
+                                backgroundColor: c.tooltipBg,
+                                borderColor: c.tooltipBorder,
                                 borderWidth: 1,
-                                titleColor: "#666",
-                                bodyColor: "#fafafa",
+                                titleColor: c.tooltipTitle,
+                                bodyColor: c.tooltipBody,
                                 callbacks: {
                                     label: (ctx) =>
                                         `${ctx.parsed.y.toFixed(key === "aqi" ? 0 : 1)} ${meta.unit}`,
@@ -393,13 +421,13 @@
                                     tooltipFormat: "HH:mm",
                                     displayFormats: { hour: "HH:mm" },
                                 },
-                                grid: { color: "#222" },
-                                ticks: { color: "#666", maxTicksLimit: 8 },
+                                grid: { color: c.grid },
+                                ticks: { color: c.tick, maxTicksLimit: 8 },
                             },
                             y: {
-                                grid: { color: "#222" },
+                                grid: { color: c.grid },
                                 ticks: {
-                                    color: "#666",
+                                    color: c.tick,
                                     callback: (val) => `${val} ${meta.unit}`,
                                 },
                             },
@@ -451,7 +479,8 @@
 
                 const decimals = key === "aqi" ? 0 : 1;
 
-                new Chart(document.getElementById("chart7d"), {
+                const c = chartColors();
+                chart7d = new Chart(document.getElementById("chart7d"), {
                     type: "line",
                     data: {
                         labels,
@@ -483,11 +512,11 @@
                         plugins: {
                             legend: { display: false },
                             tooltip: {
-                                backgroundColor: "#141414",
-                                borderColor: "#222",
+                                backgroundColor: c.tooltipBg,
+                                borderColor: c.tooltipBorder,
                                 borderWidth: 1,
-                                titleColor: "#666",
-                                bodyColor: "#fafafa",
+                                titleColor: c.tooltipTitle,
+                                bodyColor: c.tooltipBody,
                                 callbacks: {
                                     label: (ctx) => {
                                         const val =
@@ -501,13 +530,13 @@
                         },
                         scales: {
                             x: {
-                                grid: { color: "#222" },
-                                ticks: { color: "#666" },
+                                grid: { color: c.grid },
+                                ticks: { color: c.tick },
                             },
                             y: {
-                                grid: { color: "#222" },
+                                grid: { color: c.grid },
                                 ticks: {
-                                    color: "#666",
+                                    color: c.tick,
                                     callback: (val) => `${val} ${meta.unit}`,
                                 },
                             },
@@ -578,7 +607,7 @@ function hexToRgb(hex) {
                 function getGradientColor(val, minVal, maxVal) {
                     if (minVal === maxVal) return meta.color;
                     const t = (val - minVal) / (maxVal - minVal);
-                    const base = [26, 26, 26];
+                    const base = getHeatmapBase();
                     const end = hexToRgb(meta.color);
                     const r = Math.round(base[0] + t * (end[0] - base[0]));
                     const g = Math.round(base[1] + t * (end[1] - base[1]));
@@ -598,7 +627,7 @@ function hexToRgb(hex) {
 
                         const blocks = document.createElement("div");
                         blocks.className = "heatmap-legend-blocks";
-                        const base = [26, 26, 26];
+                        const base = getHeatmapBase();
                         const end = hexToRgb(meta.color);
                         for (let i = 0; i < 5; i++) {
                             const t = i / 4;
@@ -764,6 +793,7 @@ function hexToRgb(hex) {
                 });
 
                 fetchAndRender(selectedYear);
+                heatmapRefresh = () => fetchAndRender(selectedYear);
             }
 
             loadCurrent();
@@ -771,6 +801,31 @@ function hexToRgb(hex) {
             loadChart();
             loadChart7d();
             loadHeatmap();
+
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+                if (isLight) {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                }
+                const c = chartColors();
+                for (const chart of [chart24h, chart7d]) {
+                    if (!chart) continue;
+                    chart.options.scales.x.grid.color = c.grid;
+                    chart.options.scales.x.ticks.color = c.tick;
+                    chart.options.scales.y.grid.color = c.grid;
+                    chart.options.scales.y.ticks.color = c.tick;
+                    chart.options.plugins.tooltip.backgroundColor = c.tooltipBg;
+                    chart.options.plugins.tooltip.borderColor = c.tooltipBorder;
+                    chart.options.plugins.tooltip.titleColor = c.tooltipTitle;
+                    chart.options.plugins.tooltip.bodyColor = c.tooltipBody;
+                    chart.update();
+                }
+                if (heatmapRefresh) heatmapRefresh();
+            });
         </script>
     </body>
 </html>

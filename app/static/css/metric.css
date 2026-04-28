@@ -440,10 +440,10 @@ nav {
 .heatmap-tooltip {
     position: fixed;
     display: none;
-    background: #141414;
-    border: 1px solid #333;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
     border-radius: 4px;
-    color: #fafafa;
+    color: var(--text);
     font-size: 0.75rem;
     padding: 5px 10px;
     pointer-events: none;

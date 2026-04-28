@@ -146,7 +146,7 @@
 .pm-card-link:hover,
 .metric-link:hover,
 .hero-link:hover {
-    background: #0f0f0f;
+    background: var(--hover-bg);
 }
 
 .updated-rule {
