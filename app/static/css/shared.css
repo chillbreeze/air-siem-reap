@@ -45,6 +45,18 @@ html[data-theme="light"] {
     stroke-linejoin: round;
 }
 
+.icon-moon {
+    display: none;
+}
+
+html[data-theme="light"] .icon-sun {
+    display: none;
+}
+
+html[data-theme="light"] .icon-moon {
+    display: block;
+}
+
 * {
     margin: 0;
     padding: 0;
