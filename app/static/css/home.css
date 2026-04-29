@@ -236,6 +236,10 @@
         grid-template-columns: 1fr;
     }
 
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
     .metric {
         padding: 1.5rem;
     }
