@@ -27,8 +27,9 @@ services:
       - ENTITY_PRESSURE=sensor.bme688_pressure_indoor_01
       - ENTITY_HEAT_INDEX=sensor.environmental_outdoor_sen55_heat_index_outdoor
       - ENTITY_DEW_POINT=sensor.environmental_outdoor_sen55_dew_point_outdoor
-    command: |
-      bash -c "pip install --no-cache-dir flask requests gunicorn influxdb-client &&
+    command: >
+      bash -c "pip install --no-cache-dir flask requests gunicorn
+      influxdb-client &&
                gunicorn --bind 0.0.0.0:5080 --workers 2 app:app"
     healthcheck:
       test:

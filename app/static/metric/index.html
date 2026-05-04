@@ -377,6 +377,7 @@
                     },
                 };
 
+                const decimals = key === "aqi" ? 0 : 1;
                 const c = chartColors();
                 chart24h = new Chart(document.getElementById("chart"), {
                     type: "line",
@@ -428,7 +429,7 @@
                                 grid: { color: c.grid },
                                 ticks: {
                                     color: c.tick,
-                                    callback: (val) => `${val} ${meta.unit}`,
+                                    callback: (val) => `${val.toFixed(decimals)} ${meta.unit}`,
                                 },
                             },
                         },
@@ -537,7 +538,7 @@
                                 grid: { color: c.grid },
                                 ticks: {
                                     color: c.tick,
-                                    callback: (val) => `${val} ${meta.unit}`,
+                                    callback: (val) => `${val.toFixed(decimals)} ${meta.unit}`,
                                 },
                             },
                         },
