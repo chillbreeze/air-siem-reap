@@ -313,6 +313,9 @@
             document.querySelector('meta[property="og:description"]').setAttribute('content', pageDesc);
             document.querySelector('meta[property="og:url"]').setAttribute('content', pageUrl);
             document.querySelector('meta[name="description"]').setAttribute('content', pageDesc);
+            const ogImg = `https://air.siemreap.cloud/images/og-${key}.png`;
+            document.querySelector('meta[property="og:image"]').setAttribute('content', ogImg);
+            document.querySelector('meta[name="twitter:image"]').setAttribute('content', ogImg);
 
             async function loadCurrent() {
                 const res = await fetch("/api/sensors");
