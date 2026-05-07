@@ -134,6 +134,10 @@ nav .theme-toggle {
     color: var(--text);
 }
 
+.nav-link[aria-current="page"] {
+    color: #fafafa;
+}
+
 footer {
     text-align: center;
     padding-top: 1rem;
