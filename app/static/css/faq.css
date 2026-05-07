@@ -19,6 +19,10 @@
     color: #fafafa;
 }
 
+html[data-theme="light"] .hero-title {
+    color: #1e1e1e;
+}
+
 .faq-list {
     display: flex;
     flex-direction: column;

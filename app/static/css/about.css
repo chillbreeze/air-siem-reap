@@ -19,6 +19,10 @@
     color: #fafafa;
 }
 
+html[data-theme="light"] .about-hero-title {
+    color: #1e1e1e;
+}
+
 .about-section {
     margin-bottom: 3rem;
 }
