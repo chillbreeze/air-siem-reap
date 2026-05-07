@@ -6,7 +6,7 @@ Proxies requests to Home Assistant API and serves the static dashboard.
 
 import os
 from datetime import datetime
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, render_template_string
 import requests
 from influxdb_client import InfluxDBClient
 
@@ -148,10 +148,34 @@ from(bucket: "{INFLUX_BUCKET}")
     return jsonify(data)
 
 
+METRIC_META = {
+    'aqi':         {'label': 'AQI',         'description': 'Live Air Quality Index readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+    'pm1':         {'label': 'PM 1.0',       'description': 'Live PM 1.0 particulate matter readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+    'pm25':        {'label': 'PM 2.5',       'description': 'Live PM 2.5 particulate matter readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+    'pm10':        {'label': 'PM 10',        'description': 'Live PM 10 particulate matter readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+    'temperature': {'label': 'Temperature',  'description': 'Live temperature readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+    'humidity':    {'label': 'Humidity',     'description': 'Live humidity readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+    'pressure':    {'label': 'Pressure',     'description': 'Live barometric pressure readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+    'heat_index':  {'label': 'Feels Like',   'description': 'Live heat index readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+    'dew_point':   {'label': 'Dew Point',    'description': 'Live dew point readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+}
+
+BASE_URL = 'https://air.siemreap.cloud'
+
 @app.route('/metric/<entity_key>/')
 def metric(entity_key):
-    """Serve the metric history graph page."""
-    return send_from_directory('static/metric', 'index.html')
+    """Serve the metric history graph page with server-rendered OG tags."""
+    meta = METRIC_META.get(entity_key, {'label': 'Air Quality', 'description': 'Live air quality readings for Siem Reap, Cambodia.'})
+    template_path = os.path.join(app.root_path, 'static', 'metric', 'index.html')
+    with open(template_path) as f:
+        template_str = f.read()
+    return render_template_string(
+        template_str,
+        og_title=f"{meta['label']} | Siem Reap Air Quality Monitor, Cambodia",
+        og_description=meta['description'],
+        og_url=f"{BASE_URL}/metric/{entity_key}/",
+        og_image=f"{BASE_URL}/images/og-{entity_key}.png",
+    )
 
 
 @app.route('/api/history/<entity_key>')

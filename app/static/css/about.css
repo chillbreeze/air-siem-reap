@@ -106,7 +106,7 @@
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--text-dim);
+    color: #fafafa;
     font-weight: 500;
     padding-top: 0.1rem;
 }
