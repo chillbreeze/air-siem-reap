@@ -1,5 +1,6 @@
 .about-hero {
     margin: 2rem 0 3rem;
+    text-align: center;
 }
 
 .about-hero-label {
@@ -15,7 +16,7 @@
     font-size: clamp(1.5rem, 4vw, 2.5rem);
     font-weight: 700;
     line-height: 1.1;
-    color: var(--text-dim);
+    color: #fafafa;
 }
 
 .about-section {
