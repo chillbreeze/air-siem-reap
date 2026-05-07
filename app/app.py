@@ -81,6 +81,12 @@ def faq():
     return send_from_directory('static/faq', 'index.html')
 
 
+@app.route('/about/')
+def about():
+    """Serve the About page."""
+    return send_from_directory('static/about', 'index.html')
+
+
 @app.route('/sitemap.xml')
 def sitemap():
     """Serve sitemap for search engine indexing."""
@@ -95,6 +101,11 @@ def sitemap():
     <loc>https://air.siemreap.cloud/faq/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://air.siemreap.cloud/about/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>'''
     return app.response_class(xml, mimetype='application/xml')

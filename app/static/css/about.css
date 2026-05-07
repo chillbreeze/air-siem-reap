@@ -1,0 +1,123 @@
+.about-hero {
+    margin: 2rem 0 3rem;
+}
+
+.about-hero-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+}
+
+.about-hero-title {
+    font-family: "Space Mono", monospace;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text-dim);
+}
+
+.about-section {
+    margin-bottom: 3rem;
+}
+
+.about-section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.about-section-number {
+    font-family: "Space Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+}
+
+.about-section-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin: 0;
+}
+
+.about-body {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    line-height: 1.75;
+    max-width: 68ch;
+}
+
+.about-body p {
+    margin: 0 0 1rem;
+}
+
+.about-body p:last-child {
+    margin-bottom: 0;
+}
+
+.about-body a {
+    color: var(--text-dim);
+    text-decoration: underline;
+    text-decoration-color: var(--border);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.15s;
+}
+
+.about-body a:hover {
+    text-decoration-color: var(--text-dim);
+}
+
+.method-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: grid;
+    gap: 1px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.method-item {
+    background: var(--card-bg);
+    padding: 1rem 1.25rem;
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 1rem;
+    align-items: baseline;
+}
+
+@media (max-width: 480px) {
+    .method-item {
+        grid-template-columns: 1fr;
+        gap: 0.25rem;
+    }
+}
+
+.method-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    font-weight: 500;
+    padding-top: 0.1rem;
+}
+
+.method-value {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+}
+
+.about-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 3rem 0;
+}

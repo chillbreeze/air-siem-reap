@@ -48,9 +48,9 @@ nav {
 }
 
 .faq-answer {
-    font-size: 1.25rem;
+    font-size: 0.95rem;
     color: var(--text-dim);
-    line-height: 1.7;
+    line-height: 1.75;
 }
 
 .faq-answer a {
