@@ -20,7 +20,17 @@
         <!-- End Google Tag Manager -->
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Air Quality - Siem Reap</title>
+        <title>Air Quality Monitor | Siem Reap, Cambodia</title>
+        <meta name="description" content="Live air quality readings for Siem Reap, Cambodia. Updated every 60 seconds." />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Air Quality Monitor | Siem Reap, Cambodia" />
+        <meta property="og:description" content="Live air quality readings for Siem Reap, Cambodia. Updated every 60 seconds." />
+        <meta property="og:url" content="https://air.siemreap.cloud/metric/" />
+        <meta property="og:image" content="https://air.siemreap.cloud/images/og.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://air.siemreap.cloud/images/og.png" />
         <link rel="icon" href="/images/favicon.ico" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -295,7 +305,14 @@
 
             document.getElementById("metric-name").textContent = meta.label;
             document.getElementById("metric-unit").textContent = meta.unit;
-            document.title = `${meta.label} - Air Quality Siem Reap`;
+            const pageTitle = `${meta.label} | Siem Reap Air Quality Monitor, Cambodia`;
+            const pageDesc = `Live ${meta.label} readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.`;
+            const pageUrl = `https://air.siemreap.cloud/metric/${key}/`;
+            document.title = pageTitle;
+            document.querySelector('meta[property="og:title"]').setAttribute('content', pageTitle);
+            document.querySelector('meta[property="og:description"]').setAttribute('content', pageDesc);
+            document.querySelector('meta[property="og:url"]').setAttribute('content', pageUrl);
+            document.querySelector('meta[name="description"]').setAttribute('content', pageDesc);
 
             async function loadCurrent() {
                 const res = await fetch("/api/sensors");
