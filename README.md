@@ -55,4 +55,38 @@ The Flask app polls Home Assistant's REST API on each request, applies PM2.5 cor
 
 ---
 
+## Hardware Build
+
+The outdoor sensor unit is built from off-the-shelf components and a 3D-printed enclosure.
+
+**Components**
+
+| Part | Details |
+|------|---------|
+| Microcontroller | Seeed Studio XIAO ESP32-C3 (`XIAO-ESP32-C3`) |
+| Sensor | Sensirion SEN55-SDN-T (PM1.0, PM2.5, PM4.0, PM10, temperature, humidity) |
+| Enclosure | 3D-printed SEN55 case by [Syvel Engineering](https://makerworld.com/en/models/893126-sen55-air-quality-sensor-case?from=search#profileId-850164) |
+| Antenna | External 2.4GHz Wi-Fi antenna via U.FL connector |
+
+**Assembly**
+
+The enclosure STL files were printed by [3D Print Cambodia](https://www.facebook.com/3D.PRINT.Cambodia69/) in Phnom Penh, who were able to ship to Siem Reap at a very reasonable price.
+
+The case was originally designed for an ESP8266 dev board, so the XIAO ESP32-C3 — being much smaller — needed a small dab of hot glue to stay in place. The SEN55 fits snugly in the left chamber, with the ESP32-C3 and antenna cable routed into the right side.
+
+The XIAO ESP32-C3 has an external antenna connector, so a hole was punched through the top of the case using the awl on a Swiss Army knife to pass the antenna cable through. The finished unit is mounted to the wall outdoors with blue sticky tack.
+
+<table>
+  <tr>
+    <td align="center"><img src="screenshots/project/project_1.jpg" width="380" /><br/><sub>Seeed Studio XIAO ESP32-C3</sub></td>
+    <td align="center"><img src="screenshots/project/project_2.jpg" width="380" /><br/><sub>Punching the antenna hole with a Swiss Army knife awl</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/project/project_3.jpg" width="380" /><br/><sub>SEN55, ESP32-C3, and antenna inside the case</sub></td>
+    <td align="center"><img src="screenshots/project/project_4.jpg" width="380" /><br/><sub>Finished unit mounted outdoors</sub></td>
+  </tr>
+</table>
+
+---
+
 **This is a personal portfolio project showcasing IoT, automation, and full-stack development skills.**
