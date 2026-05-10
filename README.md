@@ -78,20 +78,12 @@ The XIAO ESP32-C3 has an external antenna connector, so a hole was punched throu
 
 <table>
   <tr>
-    <td align="center" width="380"><img src="screenshots/project/project_1.jpg" width="380" height="285" style="object-fit:cover" /></td>
-    <td align="center" width="380"><img src="screenshots/project/project_2.jpg" width="380" height="285" style="object-fit:cover" /></td>
+    <td align="center"><img src="screenshots/project/project_1.jpg" width="380" /><br/><sub>Seeed Studio XIAO ESP32-C3</sub></td>
+    <td align="center"><img src="screenshots/project/project_2.jpg" width="380" /><br/><sub>Punching the antenna hole with a Swiss Army knife awl</sub></td>
   </tr>
   <tr>
-    <td align="center"><sub>Seeed Studio XIAO ESP32-C3</sub></td>
-    <td align="center"><sub>Punching the antenna hole with a Swiss Army knife awl</sub></td>
-  </tr>
-  <tr>
-    <td align="center" width="380"><img src="screenshots/project/project_3.jpg" width="380" height="285" style="object-fit:cover" /></td>
-    <td align="center" width="380"><img src="screenshots/project/project_4.jpg" width="380" height="285" style="object-fit:cover" /></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>SEN55, ESP32-C3, and antenna inside the case</sub></td>
-    <td align="center"><sub>Finished unit mounted outdoors</sub></td>
+    <td align="center"><img src="screenshots/project/project_3.jpg" width="380" /><br/><sub>SEN55, ESP32-C3, and antenna inside the case</sub></td>
+    <td align="center"><img src="screenshots/project/project_4.jpg" width="380" /><br/><sub>Finished unit mounted outdoors</sub></td>
   </tr>
 </table>
 
