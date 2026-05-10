@@ -252,6 +252,85 @@
                 </ul>
             </section>
 
+            <hr class="about-divider" />
+
+            <section class="about-section">
+                <div class="about-section-header">
+                    <span class="about-section-number">03</span>
+                    <h2 class="about-section-title">The Build</h2>
+                </div>
+                <div class="about-body">
+                    <p>
+                        The outdoor sensor unit is built from off-the-shelf
+                        components and a 3D-printed enclosure. At its core is a
+                        <strong>Seeed Studio XIAO ESP32-C3</strong> wired to a
+                        <strong>Sensirion SEN55</strong> over I²C, running
+                        ESPHome firmware and reporting to Home Assistant over
+                        Wi-Fi every 60 seconds.
+                    </p>
+                </div>
+
+                <ul class="method-list method-list--build">
+                    <li class="method-item">
+                        <span class="method-label">Microcontroller</span>
+                        <span class="method-value">Seeed Studio XIAO ESP32-C3</span>
+                    </li>
+                    <li class="method-item">
+                        <span class="method-label">Sensor</span>
+                        <span class="method-value">Sensirion SEN55-SDN-T — PM1.0, PM2.5, PM4.0, PM10, temperature, humidity</span>
+                    </li>
+                    <li class="method-item">
+                        <span class="method-label">Enclosure</span>
+                        <span class="method-value">3D-printed SEN55 case by <a href="https://makerworld.com/en/models/893126-sen55-air-quality-sensor-case?from=search#profileId-850164" target="_blank">Syvel Engineering</a></span>
+                    </li>
+                    <li class="method-item">
+                        <span class="method-label">Antenna</span>
+                        <span class="method-value">External 2.4GHz Wi-Fi antenna via U.FL connector</span>
+                    </li>
+                </ul>
+
+                <div class="about-body" style="margin-top: 1.5rem;">
+                    <p>
+                        The enclosure STL files were designed by
+                        <a href="https://makerworld.com/en/models/893126-sen55-air-quality-sensor-case?from=search#profileId-850164" target="_blank">Syvel Engineering</a>
+                        and printed by
+                        <a href="https://www.facebook.com/3D.PRINT.Cambodia69/" target="_blank">3D Print Cambodia</a>
+                        in Phnom Penh, who were able to ship to Siem Reap at a
+                        very reasonable price.
+                    </p>
+                    <p>
+                        The case was originally designed for an ESP8266 dev
+                        board, so the XIAO ESP32-C3 — being much smaller —
+                        needed a small dab of hot glue to stay in place. The
+                        SEN55 fits snugly in the left chamber, with the ESP32-C3
+                        and antenna cable routed into the right side. A hole was
+                        punched through the top of the case using the awl on a
+                        Swiss Army knife to pass the antenna cable through. The
+                        finished unit is mounted to the wall outdoors with blue
+                        sticky tack.
+                    </p>
+                </div>
+
+                <div class="build-photos">
+                    <div class="build-photo">
+                        <img src="/images/build/project_1.jpg" alt="Seeed Studio XIAO ESP32-C3" />
+                        <div class="build-photo-caption">Seeed Studio XIAO ESP32-C3</div>
+                    </div>
+                    <div class="build-photo">
+                        <img src="/images/build/project_2.jpg" alt="Punching the antenna hole with a Swiss Army knife awl" />
+                        <div class="build-photo-caption">Punching the antenna hole with a Swiss Army knife awl</div>
+                    </div>
+                    <div class="build-photo">
+                        <img src="/images/build/project_3.jpg" alt="SEN55, ESP32-C3, and antenna inside the case" />
+                        <div class="build-photo-caption">SEN55, ESP32-C3, and antenna inside the case</div>
+                    </div>
+                    <div class="build-photo">
+                        <img src="/images/build/project_4.jpg" alt="Finished unit mounted outdoors" />
+                        <div class="build-photo-caption">Finished unit mounted outdoors</div>
+                    </div>
+                </div>
+            </section>
+
             <footer>
                 <p class="love">
                     Made with &#10084;&#65039; by

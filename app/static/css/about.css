@@ -126,3 +126,35 @@ html[data-theme="light"] .about-hero-title {
     border-top: 1px solid var(--border);
     margin: 3rem 0;
 }
+
+.method-list--build .method-item {
+    grid-template-columns: 9rem 1fr;
+}
+
+.build-photos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.build-photo img {
+    width: 100%;
+    height: auto;
+    border-radius: 3px;
+    display: block;
+}
+
+.build-photo-caption {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 0.4rem;
+    letter-spacing: 0.03em;
+}
+
+@media (max-width: 560px) {
+    .build-photos {
+        grid-template-columns: 1fr;
+    }
+}
