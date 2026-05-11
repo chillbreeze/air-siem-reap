@@ -246,6 +246,7 @@
                     unit: "",
                     color: "#22c55e",
                     bucketMinutes: 5,
+                    decimals: 0,
                 },
                 temperature: {
                     label: "Temperature",
@@ -282,6 +283,7 @@
                     unit: "",
                     color: "#0d9488",
                     bucketMinutes: 5,
+                    decimals: 0,
                 },
             };
 
@@ -319,7 +321,7 @@
                 const data = await res.json();
                 const val = data[key];
                 if (val === undefined) return;
-                const decimals = key === "aqi" ? 0 : 1;
+                const decimals = meta.decimals ?? 1;
                 const el = document.getElementById("current-value");
                 el.textContent = val.toFixed(decimals);
                 el.style.color = meta.color;
@@ -329,7 +331,7 @@
                 const res = await fetch(`/api/minmax/${key}`);
                 if (!res.ok) return;
                 const data = await res.json();
-                const decimals = key === "aqi" ? 0 : 1;
+                const decimals = meta.decimals ?? 1;
                 if (data.max !== null)
                     document.getElementById("mm-high").textContent =
                         data.max.toFixed(0);
@@ -394,7 +396,7 @@
                     },
                 };
 
-                const decimals = key === "aqi" ? 0 : 1;
+                const decimals = meta.decimals ?? 1;
                 const c = chartColors();
                 chart24h = new Chart(document.getElementById("chart"), {
                     type: "line",
@@ -428,7 +430,7 @@
                                 bodyColor: c.tooltipBody,
                                 callbacks: {
                                     label: (ctx) =>
-                                        `${ctx.parsed.y.toFixed(key === "aqi" ? 0 : 1)} ${meta.unit}`,
+                                        `${ctx.parsed.y.toFixed(meta.decimals ?? 1)} ${meta.unit}`,
                                 },
                             },
                         },
@@ -495,7 +497,7 @@
                 document.getElementById("mm7d-low").textContent =
                     overallLow.toFixed(0);
 
-                const decimals = key === "aqi" ? 0 : 1;
+                const decimals = meta.decimals ?? 1;
 
                 const c = chartColors();
                 chart7d = new Chart(document.getElementById("chart7d"), {
@@ -612,7 +614,7 @@
                     "Fri",
                     "Sat",
                 ];
-                const decimals = key === "aqi" ? 0 : 1;
+                const decimals = meta.decimals ?? 1;
 
 function hexToRgb(hex) {
                     return [
