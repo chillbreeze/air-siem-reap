@@ -265,12 +265,14 @@ from(bucket: "{INFLUX_BUCKET}")
 
     max_query = base_query + '  |> aggregateWindow(every: 1d, fn: max, createEmpty: false)'
     min_query = base_query + '  |> aggregateWindow(every: 1d, fn: min, createEmpty: false)'
+    avg_query = base_query + '  |> aggregateWindow(every: 1d, fn: mean, createEmpty: false)'
 
     try:
         with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
             qapi = client.query_api()
             max_result = qapi.query(max_query)
             min_result = qapi.query(min_query)
+            avg_result = qapi.query(avg_query)
 
         days = {}
         for table in max_result:
@@ -289,8 +291,16 @@ from(bucket: "{INFLUX_BUCKET}")
                 date = record.get_time().strftime('%Y-%m-%d')
                 days.setdefault(date, {})['low'] = round(val, 1)
 
+        for table in avg_result:
+            for record in table.records:
+                val = record.get_value()
+                if val is None:
+                    continue
+                date = record.get_time().strftime('%Y-%m-%d')
+                days.setdefault(date, {})['avg'] = round(val, 1)
+
         points = [
-            {'date': date, 'high': v['high'], 'low': v['low']}
+            {'date': date, 'high': v['high'], 'low': v['low'], 'avg': v.get('avg')}
             for date, v in days.items()
             if 'high' in v and 'low' in v
         ]

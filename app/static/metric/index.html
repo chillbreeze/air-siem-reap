@@ -100,7 +100,7 @@
                     <div class="chart-title">Last 7 Days</div>
                     <div class="minmax">
                         High <span id="mm7d-high">--</span> &middot; Low
-                        <span id="mm7d-low">--</span>
+                        <span id="mm7d-low">--</span><span id="mm7d-avg-wrapper" style="display:none"> &middot; Avg <span id="mm7d-avg">--</span></span>
                     </div>
                 </div>
                 <div class="chart-container">
@@ -228,18 +228,21 @@
                     unit: "µg/m³",
                     color: "#a855f7",
                     bucketMinutes: 5,
+                    chartType: "pollution",
                 },
                 pm25: {
                     label: "PM 2.5",
                     unit: "µg/m³",
                     color: "#f97316",
                     bucketMinutes: 5,
+                    chartType: "pollution",
                 },
                 pm10: {
                     label: "PM 10",
                     unit: "µg/m³",
                     color: "#ef4444",
                     bucketMinutes: 5,
+                    chartType: "pollution",
                 },
                 aqi: {
                     label: "AQI",
@@ -247,36 +250,42 @@
                     color: "#22c55e",
                     bucketMinutes: 5,
                     decimals: 0,
+                    chartType: "pollution",
                 },
                 temperature: {
                     label: "Temperature",
                     unit: "°C",
                     color: "#eab308",
                     bucketMinutes: 5,
+                    chartType: "climate",
                 },
                 humidity: {
                     label: "Humidity",
                     unit: "%",
                     color: "#38bdf8",
                     bucketMinutes: 5,
+                    chartType: "climate",
                 },
                 pressure: {
                     label: "Pressure",
                     unit: "hPa",
                     color: "#94a3b8",
                     bucketMinutes: 5,
+                    chartType: "climate",
                 },
                 heat_index: {
                     label: "Feels Like",
                     unit: "°C",
                     color: "#fb923c",
                     bucketMinutes: 5,
+                    chartType: "climate",
                 },
                 dew_point: {
                     label: "Dew Point",
                     unit: "°C",
                     color: "#34d399",
                     bucketMinutes: 5,
+                    chartType: "climate",
                 },
                 voc: {
                     label: "VOC Index",
@@ -284,6 +293,7 @@
                     color: "#0d9488",
                     bucketMinutes: 5,
                     decimals: 0,
+                    chartType: "pollution",
                 },
             };
 
@@ -489,80 +499,140 @@
                 );
                 const highs = points.map((p) => p.high);
                 const lows = points.map((p) => p.low);
-
-                const overallHigh = Math.max(...highs);
-                const overallLow = Math.min(...lows);
-                document.getElementById("mm7d-high").textContent =
-                    overallHigh.toFixed(0);
-                document.getElementById("mm7d-low").textContent =
-                    overallLow.toFixed(0);
-
                 const decimals = meta.decimals ?? 1;
-
                 const c = chartColors();
-                chart7d = new Chart(document.getElementById("chart7d"), {
-                    type: "line",
-                    data: {
-                        labels,
-                        datasets: [
-                            {
-                                data: highs,
-                                borderColor: meta.color,
-                                borderWidth: 1.5,
-                                pointRadius: 3,
-                                tension: 0.3,
-                                fill: "+1",
-                                backgroundColor: meta.color + "26",
+
+                if (meta.chartType === "pollution") {
+                    const avgs = points.map((p) => p.avg);
+                    const overallHigh = Math.max(...highs);
+                    const overallLow = Math.min(...lows);
+                    const overallAvg = avgs.reduce((s, v) => s + v, 0) / avgs.length;
+                    document.getElementById("mm7d-high").textContent = overallHigh.toFixed(decimals);
+                    document.getElementById("mm7d-low").textContent = overallLow.toFixed(decimals);
+                    document.getElementById("mm7d-avg").textContent = overallAvg.toFixed(decimals);
+                    document.getElementById("mm7d-avg-wrapper").style.display = "";
+
+                    chart7d = new Chart(document.getElementById("chart7d"), {
+                        type: "line",
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    data: avgs,
+                                    borderColor: meta.color,
+                                    borderWidth: 2,
+                                    pointRadius: 3,
+                                    tension: 0.3,
+                                    fill: true,
+                                    backgroundColor: meta.color + "26",
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: "index", intersect: false },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: c.tooltipBg,
+                                    borderColor: c.tooltipBorder,
+                                    borderWidth: 1,
+                                    titleColor: c.tooltipTitle,
+                                    bodyColor: c.tooltipBody,
+                                    callbacks: {
+                                        label: (ctx) =>
+                                            `Avg: ${ctx.parsed.y.toFixed(decimals)} ${meta.unit}`,
+                                    },
+                                },
                             },
-                            {
-                                data: lows,
-                                borderColor: meta.color,
-                                borderWidth: 1.5,
-                                pointRadius: 3,
-                                tension: 0.3,
-                                fill: "origin",
-                                backgroundColor: meta.color + "59",
-                            },
-                        ],
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: { mode: "index", intersect: false },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: c.tooltipBg,
-                                borderColor: c.tooltipBorder,
-                                borderWidth: 1,
-                                titleColor: c.tooltipTitle,
-                                bodyColor: c.tooltipBody,
-                                callbacks: {
-                                    label: (ctx) => {
-                                        const val =
-                                            ctx.parsed.y.toFixed(decimals);
-                                        return ctx.datasetIndex === 0
-                                            ? `High: ${val} ${meta.unit}`
-                                            : `Low: ${val} ${meta.unit}`;
+                            scales: {
+                                x: {
+                                    grid: { color: c.grid },
+                                    ticks: { color: c.tick },
+                                },
+                                y: {
+                                    grid: { color: c.grid },
+                                    ticks: {
+                                        color: c.tick,
+                                        callback: (val) => `${val.toFixed(decimals)} ${meta.unit}`,
                                     },
                                 },
                             },
                         },
-                        scales: {
-                            x: {
-                                grid: { color: c.grid },
-                                ticks: { color: c.tick },
+                    });
+                } else {
+                    const overallHigh = Math.max(...highs);
+                    const overallLow = Math.min(...lows);
+                    document.getElementById("mm7d-high").textContent =
+                        overallHigh.toFixed(0);
+                    document.getElementById("mm7d-low").textContent =
+                        overallLow.toFixed(0);
+
+                    chart7d = new Chart(document.getElementById("chart7d"), {
+                        type: "line",
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    data: highs,
+                                    borderColor: meta.color,
+                                    borderWidth: 1.5,
+                                    pointRadius: 3,
+                                    tension: 0.3,
+                                    fill: "+1",
+                                    backgroundColor: meta.color + "26",
+                                },
+                                {
+                                    data: lows,
+                                    borderColor: meta.color,
+                                    borderWidth: 1.5,
+                                    pointRadius: 3,
+                                    tension: 0.3,
+                                    fill: "origin",
+                                    backgroundColor: meta.color + "59",
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: "index", intersect: false },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: c.tooltipBg,
+                                    borderColor: c.tooltipBorder,
+                                    borderWidth: 1,
+                                    titleColor: c.tooltipTitle,
+                                    bodyColor: c.tooltipBody,
+                                    callbacks: {
+                                        label: (ctx) => {
+                                            const val =
+                                                ctx.parsed.y.toFixed(decimals);
+                                            return ctx.datasetIndex === 0
+                                                ? `High: ${val} ${meta.unit}`
+                                                : `Low: ${val} ${meta.unit}`;
+                                        },
+                                    },
+                                },
                             },
-                            y: {
-                                grid: { color: c.grid },
-                                ticks: {
-                                    color: c.tick,
-                                    callback: (val) => `${val.toFixed(decimals)} ${meta.unit}`,
+                            scales: {
+                                x: {
+                                    grid: { color: c.grid },
+                                    ticks: { color: c.tick },
+                                },
+                                y: {
+                                    grid: { color: c.grid },
+                                    ticks: {
+                                        color: c.tick,
+                                        callback: (val) => `${val.toFixed(decimals)} ${meta.unit}`,
+                                    },
                                 },
                             },
                         },
-                    },
-                });
+                    });
+                }
             }
 
             async function loadHeatmap() {
