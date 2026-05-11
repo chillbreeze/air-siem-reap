@@ -103,6 +103,11 @@
                             <div class="pm-value loading" id="pm25">--</div>
                             <div class="pm-unit">&micro;g/m&sup3;</div>
                         </a>
+                        <a href="/metric/voc/" class="pm-card pm-card-link">
+                            <div class="pm-label">VOC Index</div>
+                            <div class="pm-value loading" id="voc">--</div>
+                            <div class="pm-unit">index</div>
+                        </a>
                     </div>
                 </section>
 
@@ -336,6 +341,10 @@
                 if (data.dew_point !== undefined) {
                     document.getElementById("dew-point").textContent =
                         formatValue(data.dew_point, 0);
+                }
+                if (data.voc !== undefined) {
+                    document.getElementById("voc").textContent =
+                        formatValue(data.voc, 0);
                 }
 
                 // Update timestamp

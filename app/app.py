@@ -158,6 +158,7 @@ METRIC_META = {
     'pressure':    {'label': 'Pressure',     'description': 'Live barometric pressure readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
     'heat_index':  {'label': 'Feels Like',   'description': 'Live heat index readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
     'dew_point':   {'label': 'Dew Point',    'description': 'Live dew point readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+    'voc':         {'label': 'VOC Index',    'description': 'Live VOC Index readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
 }
 
 BASE_URL = 'https://air.siemreap.cloud'
@@ -228,6 +229,7 @@ INFLUX_ENTITIES = {
     'aqi':         ('sensor.environmental_outdoor_sen55_aqi_outdoor', None),
     'pm1':         ('μg/m³', 'environmental_outdoor_sen55_pm1_0'),
     'pm25':        ('μg/m³', 'environmental_outdoor_sen55_pm2_5'),
+    'voc':         ('sensor.environmental_outdoor_sen55_voc_index', None),
     'temperature': ('°C',    'environmental_outdoor_sen55_temperature'),
     'humidity':    ('%',     'environmental_outdoor_sen55_humidity'),
     'heat_index':  ('°C',    'environmental_outdoor_sen55_heat_index_outdoor'),
