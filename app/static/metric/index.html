@@ -100,7 +100,7 @@
                     <div class="chart-title">Last 7 Days</div>
                     <div class="minmax">
                         High <span id="mm7d-high">--</span> &middot; Low
-                        <span id="mm7d-low">--</span><span id="mm7d-avg-wrapper" style="display:none"> &middot; Avg <span id="mm7d-avg">--</span></span>
+                        <span id="mm7d-low">--</span> &middot; Avg <span id="mm7d-avg">--</span>
                     </div>
                 </div>
                 <div class="chart-container">
@@ -513,7 +513,6 @@
                     document.getElementById("mm7d-high").textContent = overallHigh.toFixed(decimals);
                     document.getElementById("mm7d-low").textContent = overallLow.toFixed(decimals);
                     document.getElementById("mm7d-avg").textContent = overallAvg.toFixed(decimals);
-                    document.getElementById("mm7d-avg-wrapper").style.display = "";
 
                     chart7d = new Chart(document.getElementById("chart7d"), {
                         type: "line",
@@ -567,10 +566,14 @@
                 } else {
                     const overallHigh = Math.max(...highs);
                     const overallLow = Math.min(...lows);
+                    const avgs = points.map((p) => p.avg);
+                    const overallAvg = avgs.reduce((s, v) => s + v, 0) / avgs.length;
                     document.getElementById("mm7d-high").textContent =
                         overallHigh.toFixed(0);
                     document.getElementById("mm7d-low").textContent =
                         overallLow.toFixed(0);
+                    document.getElementById("mm7d-avg").textContent =
+                        overallAvg.toFixed(1);
 
                     chart7d = new Chart(document.getElementById("chart7d"), {
                         type: "line",
