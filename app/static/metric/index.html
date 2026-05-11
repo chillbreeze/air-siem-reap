@@ -271,6 +271,7 @@
                     bucketMinutes: 5,
                     chartType: "climate",
                     yDecimals: 1,
+                    yStepSize: 1,
                 },
                 humidity: {
                     label: "Humidity",
@@ -293,6 +294,7 @@
                     bucketMinutes: 5,
                     chartType: "climate",
                     yDecimals: 1,
+                    yStepSize: 1,
                 },
                 dew_point: {
                     label: "Dew Point",
@@ -301,6 +303,7 @@
                     bucketMinutes: 5,
                     chartType: "climate",
                     yDecimals: 1,
+                    yStepSize: 1,
                 },
                 voc: {
                     label: "VOC Index",
@@ -477,6 +480,7 @@
                                 ticks: {
                                     color: c.tick,
                                     callback: (val) => `${val.toFixed(meta.yDecimals ?? 0)} ${meta.unit}`,
+                                    ...(meta.yStepSize ? { stepSize: meta.yStepSize } : {}),
                                 },
                             },
                         },
