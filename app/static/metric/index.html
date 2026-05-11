@@ -364,7 +364,7 @@
                       )
                     : points.map((p) => ({ x: new Date(p.time), y: p.value }));
 
-                const WINDOW = 15;
+                const WINDOW = 3;
                 const data = raw.map((point, i) => {
                     const start = Math.max(0, i - Math.floor(WINDOW / 2));
                     const end = Math.min(raw.length, start + WINDOW);
