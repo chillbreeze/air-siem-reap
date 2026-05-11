@@ -87,7 +87,7 @@
                     <div class="chart-title">Last 24 Hours</div>
                     <div class="minmax">
                         High <span id="mm-high">--</span> &middot; Low
-                        <span id="mm-low">--</span>
+                        <span id="mm-low">--</span> &middot; Avg <span id="mm-avg">--</span>
                     </div>
                 </div>
                 <div class="chart-container">
@@ -341,13 +341,16 @@
                 const res = await fetch(`/api/minmax/${key}`);
                 if (!res.ok) return;
                 const data = await res.json();
-                const decimals = meta.decimals ?? 1;
+                const decimals = meta.decimals === 0 ? 0 : 1;
                 if (data.max !== null)
                     document.getElementById("mm-high").textContent =
                         data.max.toFixed(0);
                 if (data.min !== null)
                     document.getElementById("mm-low").textContent =
                         data.min.toFixed(0);
+                if (data.avg !== null && data.avg !== undefined)
+                    document.getElementById("mm-avg").textContent =
+                        data.avg.toFixed(decimals);
             }
 
             async function loadChart() {

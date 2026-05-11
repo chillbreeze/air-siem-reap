@@ -393,15 +393,18 @@ from(bucket: "{INFLUX_BUCKET}")
 
     min_query = query + '  |> min()'
     max_query = query + '  |> max()'
+    avg_query = query + '  |> mean()'
 
     try:
         with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
             qapi = client.query_api()
             min_result = qapi.query(min_query)
             max_result = qapi.query(max_query)
+            avg_result = qapi.query(avg_query)
 
             min_val = None
             max_val = None
+            avg_val = None
 
             for table in min_result:
                 for record in table.records:
@@ -411,7 +414,12 @@ from(bucket: "{INFLUX_BUCKET}")
                 for record in table.records:
                     max_val = record.get_value()
 
-        return jsonify({'min': min_val, 'max': max_val})
+            for table in avg_result:
+                for record in table.records:
+                    v = record.get_value()
+                    avg_val = round(v, 1) if v is not None else None
+
+        return jsonify({'min': min_val, 'max': max_val, 'avg': avg_val})
     except Exception as e:
         app.logger.error(f'InfluxDB error for {entity_key}: {e}')
         return jsonify({'error': 'Failed to fetch min/max'}), 500
