@@ -109,6 +109,18 @@
             </div>
 
             <div class="chart-wrapper">
+                <div class="chart-header">
+                    <div class="chart-title">Last 30 Days</div>
+                    <div class="minmax">
+                        High <span id="mm30d-high">--</span> &middot; Low <span id="mm30d-low">--</span> &middot; Avg <span id="mm30d-avg">--</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chart30d"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
                 <div class="heatmap-nav">
                     <button
                         class="heatmap-nav-btn"
@@ -644,6 +656,157 @@
                 }
             }
 
+            async function loadChart30d() {
+                const res = await fetch(`/api/history30d/${key}`);
+                if (!res.ok) {
+                    document
+                        .getElementById("chart30d")
+                        .closest(".chart-wrapper").innerHTML =
+                        '<div class="error-state">Failed to load data.</div>';
+                    return;
+                }
+                const points = await res.json();
+                if (!points.length) {
+                    document
+                        .getElementById("chart30d")
+                        .closest(".chart-wrapper").innerHTML =
+                        '<div class="error-state">No data available.</div>';
+                    return;
+                }
+
+                const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                const labels = points.map((p) => {
+                    const d = new Date(p.date + "T12:00:00");
+                    return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+                });
+                const highs = points.map((p) => p.high);
+                const lows = points.map((p) => p.low);
+                const avgs = points.map((p) => p.avg);
+                const decimals = meta.decimals ?? 1;
+                const overallHigh = Math.max(...highs);
+                const overallLow = Math.min(...lows);
+                const overallAvg = avgs.reduce((s, v) => s + v, 0) / avgs.length;
+                document.getElementById("mm30d-high").textContent = overallHigh.toFixed(0);
+                document.getElementById("mm30d-low").textContent = overallLow.toFixed(0);
+                document.getElementById("mm30d-avg").textContent = overallAvg.toFixed(0);
+                const c = chartColors();
+
+                if (meta.chartType === "pollution") {
+                    new Chart(document.getElementById("chart30d"), {
+                        type: "line",
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    data: avgs,
+                                    borderColor: meta.color,
+                                    borderWidth: 2,
+                                    pointRadius: 2,
+                                    tension: 0.3,
+                                    fill: true,
+                                    backgroundColor: meta.color + "26",
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: "index", intersect: false },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: c.tooltipBg,
+                                    borderColor: c.tooltipBorder,
+                                    borderWidth: 1,
+                                    titleColor: c.tooltipTitle,
+                                    bodyColor: c.tooltipBody,
+                                    callbacks: {
+                                        label: (ctx) =>
+                                            `Avg: ${ctx.parsed.y.toFixed(decimals)} ${meta.unit}`,
+                                    },
+                                },
+                            },
+                            scales: {
+                                x: {
+                                    grid: { color: c.grid },
+                                    ticks: { color: c.tick, maxTicksLimit: 10 },
+                                },
+                                y: {
+                                    grid: { color: c.grid },
+                                    ticks: {
+                                        color: c.tick,
+                                        callback: (val) => `${val.toFixed(meta.yDecimals ?? 0)} ${meta.unit}`,
+                                    },
+                                },
+                            },
+                        },
+                    });
+                } else {
+                    new Chart(document.getElementById("chart30d"), {
+                        type: "line",
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    data: highs,
+                                    borderColor: meta.color,
+                                    borderWidth: 1.5,
+                                    pointRadius: 2,
+                                    tension: 0.3,
+                                    fill: "+1",
+                                    backgroundColor: meta.color + "26",
+                                },
+                                {
+                                    data: lows,
+                                    borderColor: meta.color,
+                                    borderWidth: 1.5,
+                                    pointRadius: 2,
+                                    tension: 0.3,
+                                    fill: "origin",
+                                    backgroundColor: meta.color + "59",
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: "index", intersect: false },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: c.tooltipBg,
+                                    borderColor: c.tooltipBorder,
+                                    borderWidth: 1,
+                                    titleColor: c.tooltipTitle,
+                                    bodyColor: c.tooltipBody,
+                                    callbacks: {
+                                        label: (ctx) => {
+                                            const val = ctx.parsed.y.toFixed(decimals);
+                                            return ctx.datasetIndex === 0
+                                                ? `High: ${val} ${meta.unit}`
+                                                : `Low: ${val} ${meta.unit}`;
+                                        },
+                                    },
+                                },
+                            },
+                            scales: {
+                                x: {
+                                    grid: { color: c.grid },
+                                    ticks: { color: c.tick, maxTicksLimit: 10 },
+                                },
+                                y: {
+                                    grid: { color: c.grid },
+                                    ticks: {
+                                        color: c.tick,
+                                        callback: (val) => `${val.toFixed(meta.yDecimals ?? 0)} ${meta.unit}`,
+                                    },
+                                },
+                            },
+                        },
+                    });
+                }
+            }
+
             async function loadHeatmap() {
                 const currentYear = new Date().getFullYear();
                 let selectedYear = currentYear;
@@ -899,6 +1062,7 @@ function hexToRgb(hex) {
             loadMinMax();
             loadChart();
             loadChart7d();
+            loadChart30d();
             loadHeatmap();
 
             document.getElementById('theme-toggle').addEventListener('click', () => {
