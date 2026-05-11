@@ -258,6 +258,7 @@
                     color: "#eab308",
                     bucketMinutes: 5,
                     chartType: "climate",
+                    yDecimals: 1,
                 },
                 humidity: {
                     label: "Humidity",
@@ -279,6 +280,7 @@
                     color: "#fb923c",
                     bucketMinutes: 5,
                     chartType: "climate",
+                    yDecimals: 1,
                 },
                 dew_point: {
                     label: "Dew Point",
@@ -286,6 +288,7 @@
                     color: "#34d399",
                     bucketMinutes: 5,
                     chartType: "climate",
+                    yDecimals: 1,
                 },
                 voc: {
                     label: "VOC Index",
@@ -350,7 +353,7 @@
                         data.min.toFixed(0);
                 if (data.avg !== null && data.avg !== undefined)
                     document.getElementById("mm-avg").textContent =
-                        data.avg.toFixed(decimals);
+                        data.avg.toFixed(0);
             }
 
             async function loadChart() {
@@ -461,7 +464,7 @@
                                 grid: { color: c.grid },
                                 ticks: {
                                     color: c.tick,
-                                    callback: (val) => `${val.toFixed(decimals)} ${meta.unit}`,
+                                    callback: (val) => `${val.toFixed(meta.yDecimals ?? 0)} ${meta.unit}`,
                                 },
                             },
                         },
@@ -510,9 +513,9 @@
                     const overallHigh = Math.max(...highs);
                     const overallLow = Math.min(...lows);
                     const overallAvg = avgs.reduce((s, v) => s + v, 0) / avgs.length;
-                    document.getElementById("mm7d-high").textContent = overallHigh.toFixed(decimals);
-                    document.getElementById("mm7d-low").textContent = overallLow.toFixed(decimals);
-                    document.getElementById("mm7d-avg").textContent = overallAvg.toFixed(decimals);
+                    document.getElementById("mm7d-high").textContent = overallHigh.toFixed(0);
+                    document.getElementById("mm7d-low").textContent = overallLow.toFixed(0);
+                    document.getElementById("mm7d-avg").textContent = overallAvg.toFixed(0);
 
                     chart7d = new Chart(document.getElementById("chart7d"), {
                         type: "line",
@@ -557,7 +560,7 @@
                                     grid: { color: c.grid },
                                     ticks: {
                                         color: c.tick,
-                                        callback: (val) => `${val.toFixed(decimals)} ${meta.unit}`,
+                                        callback: (val) => `${val.toFixed(meta.yDecimals ?? 0)} ${meta.unit}`,
                                     },
                                 },
                             },
@@ -573,7 +576,7 @@
                     document.getElementById("mm7d-low").textContent =
                         overallLow.toFixed(0);
                     document.getElementById("mm7d-avg").textContent =
-                        overallAvg.toFixed(1);
+                        overallAvg.toFixed(0);
 
                     chart7d = new Chart(document.getElementById("chart7d"), {
                         type: "line",
@@ -632,7 +635,7 @@
                                     grid: { color: c.grid },
                                     ticks: {
                                         color: c.tick,
-                                        callback: (val) => `${val.toFixed(decimals)} ${meta.unit}`,
+                                        callback: (val) => `${val.toFixed(meta.yDecimals ?? 0)} ${meta.unit}`,
                                     },
                                 },
                             },
