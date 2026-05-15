@@ -94,8 +94,6 @@
                 <div class="comparison-line"><span style="color:#ef4444;">▲ {{ day_delta }}%</span> higher than the past 24h</div>
                 {% elif day_direction == 'down' %}
                 <div class="comparison-line"><span style="color:#22c55e;">▼ {{ day_delta }}%</span> lower than the past 24h</div>
-                {% elif day_direction == 'similar' %}
-                <div class="comparison-line" style="color:#888;">≈ similar to the past 24h</div>
                 {% endif %}
                 <div class="chart-container">
                     <canvas id="chart"></canvas>
@@ -114,8 +112,6 @@
                 <div class="comparison-line"><span style="color:#ef4444;">▲ {{ week_delta }}%</span> higher than the past 7d</div>
                 {% elif week_direction == 'down' %}
                 <div class="comparison-line"><span style="color:#22c55e;">▼ {{ week_delta }}%</span> lower than the past 7d</div>
-                {% elif week_direction == 'similar' %}
-                <div class="comparison-line" style="color:#888;">≈ similar to the past 7d</div>
                 {% endif %}
                 <div class="chart-container">
                     <canvas id="chart7d"></canvas>
@@ -133,8 +129,6 @@
                 <div class="comparison-line"><span style="color:#ef4444;">▲ {{ month_delta }}%</span> higher than the past 30d</div>
                 {% elif month_direction == 'down' %}
                 <div class="comparison-line"><span style="color:#22c55e;">▼ {{ month_delta }}%</span> lower than the past 30d</div>
-                {% elif month_direction == 'similar' %}
-                <div class="comparison-line" style="color:#888;">≈ similar to the past 30d</div>
                 {% endif %}
                 <div class="chart-container">
                     <canvas id="chart30d"></canvas>

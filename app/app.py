@@ -199,9 +199,7 @@ def _metric_comparison(entity_key):
                     results[period] = (None, None)
                 else:
                     pct = (curr_val - prev_val) / prev_val * 100
-                    if abs(pct) < 2:
-                        results[period] = ('similar', None)
-                    elif pct > 0:
+                    if pct > 0:
                         results[period] = ('up', round(abs(pct)))
                     else:
                         results[period] = ('down', round(abs(pct)))
