@@ -163,10 +163,66 @@ METRIC_META = {
 
 BASE_URL = 'https://air.siemreap.cloud'
 
+def _aqi_comparison():
+    """Query InfluxDB for period-over-period AQI averages.
+    Returns dict keyed by 'day','week','month' with (direction, delta_pct) tuples.
+    direction is 'up', 'down', 'similar', or None (insufficient data).
+    """
+    measurement, _ = INFLUX_ENTITIES['aqi']
+    periods = [
+        ('day',   '-24h', '-48h', '-24h'),
+        ('week',  '-7d',  '-14d', '-7d'),
+        ('month', '-30d', '-60d', '-30d'),
+    ]
+    results = {}
+    try:
+        with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
+            qapi = client.query_api()
+            for period, curr_start, prev_start, prev_stop in periods:
+                curr_q = f'''from(bucket: "{INFLUX_BUCKET}")
+  |> range(start: {curr_start})
+  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+  |> filter(fn: (r) => r["_field"] == "value")
+  |> mean()'''
+                prev_q = f'''from(bucket: "{INFLUX_BUCKET}")
+  |> range(start: {prev_start}, stop: {prev_stop})
+  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
+  |> filter(fn: (r) => r["_field"] == "value")
+  |> mean()'''
+                curr_val = next((r.get_value() for t in qapi.query(curr_q) for r in t.records), None)
+                prev_val = next((r.get_value() for t in qapi.query(prev_q) for r in t.records), None)
+                if curr_val is None or prev_val is None or prev_val == 0:
+                    results[period] = (None, None)
+                else:
+                    pct = (curr_val - prev_val) / prev_val * 100
+                    if abs(pct) < 2:
+                        results[period] = ('similar', None)
+                    elif pct > 0:
+                        results[period] = ('up', round(abs(pct)))
+                    else:
+                        results[period] = ('down', round(abs(pct)))
+    except Exception as e:
+        app.logger.error(f'AQI comparison error: {e}')
+        for period, *_ in periods:
+            results.setdefault(period, (None, None))
+    return results
+
+
 @app.route('/metric/<entity_key>/')
 def metric(entity_key):
     """Serve the metric history graph page with server-rendered OG tags."""
     meta = METRIC_META.get(entity_key, {'label': 'Air Quality', 'description': 'Live air quality readings for Siem Reap, Cambodia.'})
+
+    aqi_day_dir = aqi_day_delta = None
+    aqi_week_dir = aqi_week_delta = None
+    aqi_month_dir = aqi_month_delta = None
+
+    if entity_key == 'aqi':
+        cmp = _aqi_comparison()
+        aqi_day_dir,   aqi_day_delta   = cmp.get('day',   (None, None))
+        aqi_week_dir,  aqi_week_delta  = cmp.get('week',  (None, None))
+        aqi_month_dir, aqi_month_delta = cmp.get('month', (None, None))
+
     template_path = os.path.join(app.root_path, 'static', 'metric', 'index.html')
     with open(template_path) as f:
         template_str = f.read()
@@ -176,6 +232,12 @@ def metric(entity_key):
         og_description=meta['description'],
         og_url=f"{BASE_URL}/metric/{entity_key}/",
         og_image=f"{BASE_URL}/images/og-{entity_key}.png",
+        aqi_day_direction=aqi_day_dir,
+        aqi_day_delta=aqi_day_delta,
+        aqi_week_direction=aqi_week_dir,
+        aqi_week_delta=aqi_week_delta,
+        aqi_month_direction=aqi_month_dir,
+        aqi_month_delta=aqi_month_delta,
     )
 
 

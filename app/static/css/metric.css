@@ -77,6 +77,12 @@ nav {
     height: 400px;
 }
 
+.comparison-line {
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    margin-bottom: 1rem;
+}
+
 /* Desktop height breakpoints — independent of width */
 
 /* Shorter desktop monitors ~1080px tall */

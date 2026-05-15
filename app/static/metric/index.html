@@ -90,6 +90,13 @@
                         <span id="mm-low">--</span> &middot; Avg <span id="mm-avg">--</span>
                     </div>
                 </div>
+                {% if aqi_day_direction == 'up' %}
+                <div class="comparison-line"><span style="color:#ef4444;">▲ {{ aqi_day_delta }}%</span> higher than the past 24h</div>
+                {% elif aqi_day_direction == 'down' %}
+                <div class="comparison-line"><span style="color:#22c55e;">▼ {{ aqi_day_delta }}%</span> lower than the past 24h</div>
+                {% elif aqi_day_direction == 'similar' %}
+                <div class="comparison-line" style="color:#888;">≈ similar to the past 24h</div>
+                {% endif %}
                 <div class="chart-container">
                     <canvas id="chart"></canvas>
                 </div>
@@ -103,6 +110,13 @@
                         <span id="mm7d-low">--</span> &middot; Avg <span id="mm7d-avg">--</span>
                     </div>
                 </div>
+                {% if aqi_week_direction == 'up' %}
+                <div class="comparison-line"><span style="color:#ef4444;">▲ {{ aqi_week_delta }}%</span> higher than the past 7d</div>
+                {% elif aqi_week_direction == 'down' %}
+                <div class="comparison-line"><span style="color:#22c55e;">▼ {{ aqi_week_delta }}%</span> lower than the past 7d</div>
+                {% elif aqi_week_direction == 'similar' %}
+                <div class="comparison-line" style="color:#888;">≈ similar to the past 7d</div>
+                {% endif %}
                 <div class="chart-container">
                     <canvas id="chart7d"></canvas>
                 </div>
@@ -115,6 +129,13 @@
                         High <span id="mm30d-high">--</span> &middot; Low <span id="mm30d-low">--</span> &middot; Avg <span id="mm30d-avg">--</span>
                     </div>
                 </div>
+                {% if aqi_month_direction == 'up' %}
+                <div class="comparison-line"><span style="color:#ef4444;">▲ {{ aqi_month_delta }}%</span> higher than the past 30d</div>
+                {% elif aqi_month_direction == 'down' %}
+                <div class="comparison-line"><span style="color:#22c55e;">▼ {{ aqi_month_delta }}%</span> lower than the past 30d</div>
+                {% elif aqi_month_direction == 'similar' %}
+                <div class="comparison-line" style="color:#888;">≈ similar to the past 30d</div>
+                {% endif %}
                 <div class="chart-container">
                     <canvas id="chart30d"></canvas>
                 </div>
