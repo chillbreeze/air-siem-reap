@@ -87,6 +87,12 @@ def about():
     return send_from_directory('static/about', 'index.html')
 
 
+@app.route('/contact/')
+def contact():
+    """Serve the Contact page."""
+    return send_from_directory('static/contact', 'index.html')
+
+
 @app.route('/sitemap.xml')
 def sitemap():
     """Serve sitemap for search engine indexing."""

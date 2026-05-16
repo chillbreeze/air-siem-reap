@@ -21,10 +21,6 @@ env/
 # Pelican output
 blog/output/
 
-# Obsidian / Syncthing
-.obsidian/
-.stfolder/
-
 # Env files
 .env
 *.env
