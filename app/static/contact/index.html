@@ -269,7 +269,7 @@
                 const email = form.querySelector("#email");
                 const wantsReply = form.querySelector("#wants_reply");
                 if (wantsReply.checked && !email.value.trim()) {
-                    status.textContent = "Please enter your email address so we can reply.";
+                    status.textContent = "Please enter your email for a reply.";
                     status.className = "form-status form-status--error";
                     email.focus();
                     return;
