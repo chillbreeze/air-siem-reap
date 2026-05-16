@@ -41,7 +41,7 @@ html[data-theme="light"] .contact-hero-title {
     opacity: 0.6;
 }
 
-.form-field input,
+.form-field input:not([type="checkbox"]),
 .form-field textarea {
     width: 100%;
     background: var(--card-bg);
@@ -57,7 +57,7 @@ html[data-theme="light"] .contact-hero-title {
     appearance: none;
 }
 
-.form-field input:focus,
+.form-field input:not([type="checkbox"]):focus,
 .form-field textarea:focus {
     border-color: var(--text-dim);
 }
@@ -65,6 +65,28 @@ html[data-theme="light"] .contact-hero-title {
 .form-field textarea {
     resize: vertical;
     min-height: 120px;
+}
+
+.form-field--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-field--checkbox input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.form-field--checkbox label {
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.875rem;
+    color: var(--text-dim);
+    margin-bottom: 0;
 }
 
 .submit-btn {

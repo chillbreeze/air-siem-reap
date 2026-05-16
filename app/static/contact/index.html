@@ -154,6 +154,15 @@
                         />
                     </div>
                     <div class="form-field">
+                        <label for="subject">Subject</label>
+                        <input
+                            type="text"
+                            id="subject"
+                            name="_subject"
+                            required
+                        />
+                    </div>
+                    <div class="form-field">
                         <label for="message">Message</label>
                         <textarea
                             id="message"
@@ -161,6 +170,17 @@
                             rows="6"
                             required
                         ></textarea>
+                    </div>
+                    <div class="form-field form-field--checkbox">
+                        <input
+                            type="checkbox"
+                            id="wants_reply"
+                            name="wants_reply"
+                            value="Yes"
+                        />
+                        <label for="wants_reply">
+                            I'd like a reply <span class="field-optional">(optional — requires email above)</span>
+                        </label>
                     </div>
                     <button type="submit" class="submit-btn">
                         Send Message
@@ -244,7 +264,22 @@
             form.addEventListener("submit", async (e) => {
                 e.preventDefault();
 
+                const subject = form.querySelector("#subject");
                 const message = form.querySelector("#message");
+                const email = form.querySelector("#email");
+                const wantsReply = form.querySelector("#wants_reply");
+                if (wantsReply.checked && !email.value.trim()) {
+                    status.textContent = "Please enter your email address so we can reply.";
+                    status.className = "form-status form-status--error";
+                    email.focus();
+                    return;
+                }
+                if (!subject.value.trim()) {
+                    status.textContent = "Please enter a subject.";
+                    status.className = "form-status form-status--error";
+                    subject.focus();
+                    return;
+                }
                 if (!message.value.trim()) {
                     status.textContent = "Please enter a message.";
                     status.className = "form-status form-status--error";
