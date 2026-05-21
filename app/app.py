@@ -165,6 +165,7 @@ METRIC_META = {
     'heat_index':  {'label': 'Feels Like',   'description': 'Live heat index readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
     'dew_point':   {'label': 'Dew Point',    'description': 'Live dew point readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
     'voc':         {'label': 'VOC Index',    'description': 'Live VOC Index readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+    'nox':         {'label': 'NOx Index',    'description': 'Live NOx Index readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
 }
 
 BASE_URL = 'https://air.siemreap.cloud'
@@ -295,6 +296,7 @@ INFLUX_ENTITIES = {
     'pm1':         ('μg/m³', 'environmental_outdoor_sen55_pm1_0'),
     'pm25':        ('μg/m³', 'environmental_outdoor_sen55_pm2_5'),
     'voc':         ('sensor.environmental_outdoor_sen55_voc_index', None),
+    'nox':         ('sensor.environmental_outdoor_sen55_nox_index', None),
     'temperature': ('°C',    'environmental_outdoor_sen55_temperature'),
     'humidity':    ('%',     'environmental_outdoor_sen55_humidity'),
     'heat_index':  ('°C',    'environmental_outdoor_sen55_heat_index_outdoor'),
@@ -567,6 +569,29 @@ from(bucket: "{INFLUX_BUCKET}")
 def health():
     """Health check endpoint."""
     return jsonify({'status': 'ok'})
+
+
+@app.route('/api/debug/nox')
+def debug_nox():
+    """Temporary: find what NOx-related measurements exist in InfluxDB."""
+    found = []
+    try:
+        with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
+            qapi = client.query_api()
+            # Search all measurements in last 24h that contain 'nox'
+            q = f'''
+import "influxdata/influxdb/schema"
+schema.measurements(bucket: "{INFLUX_BUCKET}")
+'''
+            result = qapi.query(q)
+            for table in result:
+                for record in table.records:
+                    val = record.get_value()
+                    if val and 'nox' in str(val).lower():
+                        found.append(val)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    return jsonify({'measurements_containing_nox': found})
 
 
 if __name__ == '__main__':

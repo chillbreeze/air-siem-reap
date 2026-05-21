@@ -153,6 +153,11 @@
                             <div class="pm-value loading" id="voc">--</div>
                             <div class="pm-unit">index</div>
                         </a>
+                        <a href="/metric/nox/" class="pm-card pm-card-link">
+                            <div class="pm-label">NOx Index</div>
+                            <div class="pm-value loading" id="nox">--</div>
+                            <div class="pm-unit">index</div>
+                        </a>
                     </div>
                 </section>
 
@@ -375,6 +380,12 @@
                 if (data.voc !== undefined) {
                     document.getElementById("voc").textContent = formatValue(
                         data.voc,
+                        0,
+                    );
+                }
+                if (data.nox !== undefined) {
+                    document.getElementById("nox").textContent = formatValue(
+                        data.nox,
                         0,
                     );
                 }
