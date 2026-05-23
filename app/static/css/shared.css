@@ -135,8 +135,8 @@ nav .theme-toggle {
 }
 
 .nav-link[aria-current="page"] {
-    color: #fafafa;
-    border-bottom: 1px solid #fafafa;
+    color: var(--text);
+    border-bottom: 1px solid var(--text);
 }
 
 footer {
