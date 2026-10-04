@@ -910,7 +910,9 @@ function hexToRgb(hex) {
                     }
                 }
 
-                async function fetchAndRender(year) {
+                // keepScroll: re-render without moving the view (used by theme toggle)
+                async function fetchAndRender(year, keepScroll = false) {
+                    const prevScroll = calendar.scrollLeft;
                     yearLabel.textContent = year;
                     nextBtn.disabled = year >= currentYear;
                     prevBtn.disabled = true;
@@ -983,6 +985,9 @@ function hexToRgb(hex) {
                     }
                     gh.appendChild(monthTop);
 
+                    // Last day of the current month - used to scroll it into view on mobile
+                    let monthEndCell = null;
+
                     const weeksGrid = document.createElement("div");
                     weeksGrid.className = "heatmap-weeks";
                     weeksGrid.style.setProperty("--num-weeks", numWeeks);
@@ -1025,10 +1030,26 @@ function hexToRgb(hex) {
                                 });
                             }
                             weeksGrid.appendChild(cell);
+                            if (year === currentYear && m === today.getMonth() && d === daysInMonth) {
+                                monthEndCell = cell;
+                            }
                         }
                     }
                     gh.appendChild(weeksGrid);
                     calendar.appendChild(gh);
+
+                    // On narrow screens the year scrolls sideways. Scroll so the
+                    // current month sits at the right edge instead of starting at January.
+                    // (No effect on desktop, where the whole year fits.)
+                    if (keepScroll) {
+                        calendar.scrollLeft = prevScroll;
+                    } else if (monthEndCell) {
+                        const calRect = calendar.getBoundingClientRect();
+                        const cellRect = monthEndCell.getBoundingClientRect();
+                        calendar.scrollLeft += cellRect.right - calRect.right + 8;
+                    } else {
+                        calendar.scrollLeft = 0;
+                    }
 
                     renderLegend(minVal, maxVal);
                 }
@@ -1046,7 +1067,7 @@ function hexToRgb(hex) {
                 });
 
                 fetchAndRender(selectedYear);
-                heatmapRefresh = () => fetchAndRender(selectedYear);
+                heatmapRefresh = () => fetchAndRender(selectedYear, true);
             }
 
             loadCurrent();
