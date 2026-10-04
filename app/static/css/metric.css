@@ -305,6 +305,26 @@ nav {
     justify-content: flex-start;
 }
 
+/* Fade the edge(s) that have more heatmap to scroll to (classes set by JS) */
+.heatmap-calendar {
+    --fade-l: 0px;
+    --fade-r: 0px;
+}
+
+.heatmap-calendar.fade-left {
+    --fade-l: 72px;
+}
+
+.heatmap-calendar.fade-right {
+    --fade-r: 72px;
+}
+
+.heatmap-calendar.fade-left,
+.heatmap-calendar.fade-right {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent);
+}
+
 .heatmap-github {
     display: inline-grid;
     grid-template-areas:

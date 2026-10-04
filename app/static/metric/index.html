@@ -910,6 +910,15 @@ function hexToRgb(hex) {
                     }
                 }
 
+                // Fade whichever edge has more heatmap hidden off-screen
+                function updateHeatmapFade() {
+                    const maxScroll = calendar.scrollWidth - calendar.clientWidth;
+                    calendar.classList.toggle("fade-left", calendar.scrollLeft > 2);
+                    calendar.classList.toggle("fade-right", calendar.scrollLeft < maxScroll - 2);
+                }
+                calendar.addEventListener("scroll", updateHeatmapFade, { passive: true });
+                window.addEventListener("resize", updateHeatmapFade);
+
                 // keepScroll: re-render without moving the view (used by theme toggle)
                 async function fetchAndRender(year, keepScroll = false) {
                     const prevScroll = calendar.scrollLeft;
@@ -1050,6 +1059,7 @@ function hexToRgb(hex) {
                     } else {
                         calendar.scrollLeft = 0;
                     }
+                    updateHeatmapFade();
 
                     renderLegend(minVal, maxVal);
                 }
