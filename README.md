@@ -23,7 +23,7 @@ A personal project demonstrating real-time air quality and climate monitoring fo
 
 Pulls live sensor data from a physical IoT sensor in my apartment, processes it through a Python backend, and displays it on a public-facing web dashboard. Anyone can check current PM2.5, temperature, humidity, and other environmental metrics for my location in Siem Reap.
 
-Each metric on the home page is clickable and will show a 24-hour line graph of the metric. It is only updated every 5 minutes to smooth out the line to view the trends better.
+Each metric on the home page is clickable and will show a 24-hour line graph of the metric. The sensor reports every 60 seconds; the chart averages readings into 5-minute points to smooth out the line and make trends easier to see.
 
 ## Why I Built It
 
@@ -33,25 +33,31 @@ Siem Reap has very little public air quality monitoring. During burning season t
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | HTML / CSS / JavaScript |
+| Frontend | HTML / CSS / JavaScript, charts with Chart.js |
 | Backend | Python 3.12 + Flask + Gunicorn |
-| Reverse proxy | Nginx |
-| Containerization | Docker + Docker Compose |
-| Data source | Home Assistant REST API |
-| Sensor | SEN55 environmental sensor |
-| Microcontroller | ESP32 C3 Mini | 
+| Reverse proxy | Nginx (behind Cloudflare for HTTPS) |
+| Containerization | Docker + Docker Compose, managed with Dockge |
+| Data source | InfluxDB, fed by Home Assistant's InfluxDB integration |
+| Sensor | SEN55 environmental sensor (plus a BME688 indoors for pressure) |
+| Microcontroller | ESP32 C3 Mini running ESPHome |
 
 ## Project Architecture
 
-The Flask app polls Home Assistant's REST API on each request, applies PM2.5 correction algorithms, calculates derived metrics (heat index, dew point, AQI), and serves the dashboard. Everything runs in Docker on a local mini-PC server.
+1. The ESP32 reads the SEN55 every 60 seconds. ESPHome also calculates AQI, heat index, and dew point on the device.
+2. Home Assistant receives the readings and writes them to InfluxDB through its native InfluxDB integration.
+3. The Flask app queries InfluxDB and serves a small JSON API (latest readings, 24-hour, 7-day, and 30-day history, and a yearly heatmap), plus the static pages.
+4. The home page checks for new readings every 30 seconds.
+
+Everything runs in Docker on a local mini-PC server. Python packages are installed once when the image is built (`app/Dockerfile`, versions pinned in `app/requirements.txt`). The app code is mounted into the container, so code changes only need a container restart; changing a package version needs a rebuild.
 
 ## Features
 
-- Real-time AQI with PM2.5 correction
-- Full environmental data: PM1.0, PM2.5, PM4.0, PM10, temperature, humidity, pressure
-- Derived metrics: heat index, dew point
+- Live AQI with a plain-language health tip for the current level
+- Environmental data: PM1.0, PM2.5, VOC index, NOx index, temperature, humidity, heat index, dew point, and pressure
+- Detail page for each metric with 24-hour, 7-day, and 30-day charts and a yearly heatmap
+- "Sensor offline" warning on the home page when the newest reading is more than 15 minutes old
+- Light and dark themes
 - Container health checks for reliability
-- Sensor entities configurable via environment variables
 
 ---
 

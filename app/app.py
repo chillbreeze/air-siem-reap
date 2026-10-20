@@ -95,25 +95,30 @@ def contact():
 
 @app.route('/sitemap.xml')
 def sitemap():
-    """Serve sitemap for search engine indexing."""
-    xml = '''<?xml version="1.0" encoding="UTF-8"?>
+    """Serve sitemap for search engine indexing.
+    Metric pages are listed automatically for every metric that has data in InfluxDB."""
+    # (path, how often it changes, priority)
+    pages = [
+        ('/', 'hourly', '1.0'),
+        ('/faq/', 'monthly', '0.7'),
+        ('/about/', 'monthly', '0.6'),
+    ]
+    for key in METRIC_META:
+        if key not in INFLUX_ENTITIES:
+            continue  # page exists but has no data source (e.g. PM10), so don't list it
+        pages.append((f'/metric/{key}/', 'hourly', '0.8'))
+
+    urls = ''
+    for path, freq, priority in pages:
+        urls += f"""  <url>
+    <loc>{BASE_URL}{path}</loc>
+    <changefreq>{freq}</changefreq>
+    <priority>{priority}</priority>
+  </url>
+"""
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://air.siemreap.cloud/</loc>
-    <changefreq>hourly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://air.siemreap.cloud/faq/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://air.siemreap.cloud/about/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-</urlset>'''
+{urls}</urlset>"""
     return app.response_class(xml, mimetype='application/xml')
 
 
@@ -159,17 +164,17 @@ from(bucket: "{INFLUX_BUCKET}")
 
 
 METRIC_META = {
-    'aqi':         {'label': 'AQI',         'description': 'Live Air Quality Index readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
-    'pm1':         {'label': 'PM 1.0',       'description': 'Live PM 1.0 particulate matter readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
-    'pm25':        {'label': 'PM 2.5',       'description': 'Live PM 2.5 particulate matter readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
-    'pm10':        {'label': 'PM 10',        'description': 'Live PM 10 particulate matter readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
-    'temperature': {'label': 'Temperature',  'description': 'Live temperature readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
-    'humidity':    {'label': 'Humidity',     'description': 'Live humidity readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
-    'pressure':    {'label': 'Pressure',     'description': 'Live barometric pressure readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
-    'heat_index':  {'label': 'Feels Like',   'description': 'Live heat index readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
-    'dew_point':   {'label': 'Dew Point',    'description': 'Live dew point readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
-    'voc':         {'label': 'VOC Index',    'description': 'Live VOC Index readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
-    'nox':         {'label': 'NOx Index',    'description': 'Live NOx Index readings for Siem Reap, Cambodia. 24-hour charts and historical trends updated every 60 seconds.'},
+    'aqi':         {'label': 'AQI',         'description': 'Live Air Quality Index readings for Siem Reap, Cambodia, updated every minute, with 24-hour charts and historical trends.'},
+    'pm1':         {'label': 'PM 1.0',       'description': 'Live PM 1.0 particulate matter readings for Siem Reap, Cambodia, updated every minute, with 24-hour charts and historical trends.'},
+    'pm25':        {'label': 'PM 2.5',       'description': 'Live PM 2.5 particulate matter readings for Siem Reap, Cambodia, updated every minute, with 24-hour charts and historical trends.'},
+    'pm10':        {'label': 'PM 10',        'description': 'Live PM 10 particulate matter readings for Siem Reap, Cambodia, updated every minute, with 24-hour charts and historical trends.'},
+    'temperature': {'label': 'Temperature',  'description': 'Live temperature readings for Siem Reap, Cambodia, updated every minute, with 24-hour charts and historical trends.'},
+    'humidity':    {'label': 'Humidity',     'description': 'Live humidity readings for Siem Reap, Cambodia, updated every minute, with 24-hour charts and historical trends.'},
+    'pressure':    {'label': 'Pressure',     'description': 'Live barometric pressure readings for Siem Reap, Cambodia, updated every minute, with 24-hour charts and historical trends.'},
+    'heat_index':  {'label': 'Feels Like',   'description': 'Live heat index readings for Siem Reap, Cambodia, updated every minute, with 24-hour charts and historical trends.'},
+    'dew_point':   {'label': 'Dew Point',    'description': 'Live dew point readings for Siem Reap, Cambodia, updated every minute, with 24-hour charts and historical trends.'},
+    'voc':         {'label': 'VOC Index',    'description': 'Live VOC Index readings for Siem Reap, Cambodia, updated every minute, with 24-hour charts and historical trends.'},
+    'nox':         {'label': 'NOx Index',    'description': 'Live NOx Index readings for Siem Reap, Cambodia, updated every minute, with 24-hour charts and historical trends.'},
 }
 
 BASE_URL = 'https://air.siemreap.cloud'

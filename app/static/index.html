@@ -7,7 +7,7 @@
         <meta name="robots" content="index, follow" />
         <meta
             name="description"
-            content="Live air quality monitoring for Siem Reap, Cambodia. Check real-time AQI, PM2.5, temperature, and humidity updated every hour."
+            content="Live air quality monitoring for Siem Reap, Cambodia. Check real-time AQI, PM2.5, temperature, and humidity updated every minute."
         />
         <meta
             property="og:title"
@@ -15,7 +15,7 @@
         />
         <meta
             property="og:description"
-            content="Live air quality monitoring for Siem Reap, Cambodia. Check real-time AQI, PM2.5, temperature, and humidity updated every hour."
+            content="Live air quality monitoring for Siem Reap, Cambodia. Check real-time AQI, PM2.5, temperature, and humidity updated every minute."
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://air.siemreap.cloud" />
@@ -98,6 +98,7 @@
                     <div class="aqi-label">Air Quality Index</div>
                     <div class="aqi-value loading" id="aqi-raw">--</div>
                     <div class="aqi-status" id="aqi-status">Loading...</div>
+                    <div class="aqi-advice" id="aqi-advice"></div>
                     <div class="updated" id="updated">Updated --</div>
                     <hr class="updated-rule" />
                 </a>
@@ -260,25 +261,44 @@
                 staleMinutes: 15,
             };
 
-            // AQI status mapping
+            // AQI status mapping, with health advice based on US EPA AirNow guidance
             function getAqiStatus(aqi) {
                 const value = parseInt(aqi);
-                if (value <= 50) return { text: "Good", class: "aqi-good" };
+                if (value <= 50)
+                    return {
+                        text: "Good",
+                        class: "aqi-good",
+                        advice: "Air quality is good. Enjoy time outdoors.",
+                    };
                 if (value <= 100)
-                    return { text: "Moderate", class: "aqi-moderate" };
+                    return {
+                        text: "Moderate",
+                        class: "aqi-moderate",
+                        advice: "Unusually sensitive people should consider limiting long or heavy outdoor exertion.",
+                    };
                 if (value <= 150)
                     return {
                         text: "Unhealthy for Sensitive Groups",
                         class: "aqi-unhealthy-sensitive",
+                        advice: "Children, older adults, and people with heart or lung conditions should limit long or heavy outdoor exertion.",
                     };
                 if (value <= 200)
-                    return { text: "Unhealthy", class: "aqi-unhealthy" };
+                    return {
+                        text: "Unhealthy",
+                        class: "aqi-unhealthy",
+                        advice: "Everyone should limit long or heavy outdoor exertion. Sensitive groups should avoid it.",
+                    };
                 if (value <= 300)
                     return {
                         text: "Very Unhealthy",
                         class: "aqi-very-unhealthy",
+                        advice: "Everyone should avoid long or heavy outdoor exertion. Sensitive groups should stay indoors.",
                     };
-                return { text: "Hazardous", class: "aqi-hazardous" };
+                return {
+                    text: "Hazardous",
+                    class: "aqi-hazardous",
+                    advice: "Everyone should avoid all outdoor activity. Keep windows closed.",
+                };
             }
 
             // Format number for display
@@ -304,6 +324,8 @@
                     aqiEl.textContent = aqi;
                     const status = getAqiStatus(aqi);
                     statusEl.textContent = status.text;
+                    document.getElementById("aqi-advice").textContent =
+                        status.advice;
                     aqiEl.className = "aqi-value " + status.class;
                     statusEl.className = "aqi-status " + status.class;
                 }
