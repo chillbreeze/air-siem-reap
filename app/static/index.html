@@ -255,6 +255,9 @@
 
                 // Refresh interval in milliseconds (30 seconds)
                 refreshInterval: 30000,
+
+                // Show "Sensor offline" if the newest reading is older than this
+                staleMinutes: 15,
             };
 
             // AQI status mapping
@@ -358,14 +361,50 @@
                     );
                 }
 
-                // Update timestamp
-                document.getElementById("updated").textContent =
-                    "Updated " +
-                    new Date().toLocaleTimeString([], {
-                        hour: "numeric",
-                        minute: "2-digit",
-                        hour12: true,
-                    });
+                // Show when the sensor actually took the reading
+                lastReadingTime = data.updated_at
+                    ? new Date(data.updated_at)
+                    : null;
+                showUpdated();
+            }
+
+            // Time of the last sensor reading, and whether the last fetch failed
+            let lastReadingTime = null;
+            let fetchFailed = false;
+
+            function formatTime(date) {
+                return date.toLocaleTimeString([], {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                });
+            }
+
+            // Set the "Updated" line, with a warning if data is old or unreachable
+            function showUpdated() {
+                const el = document.getElementById("updated");
+                const ageMinutes = lastReadingTime
+                    ? (Date.now() - lastReadingTime) / 60000
+                    : Infinity;
+                let text;
+
+                if (fetchFailed) {
+                    text = lastReadingTime
+                        ? "Can't reach server · last reading " +
+                          formatTime(lastReadingTime)
+                        : "Can't load data right now";
+                } else if (!lastReadingTime) {
+                    text = "Sensor offline · no recent readings";
+                } else if (ageMinutes > CONFIG.staleMinutes) {
+                    text =
+                        "Sensor offline · last reading " +
+                        formatTime(lastReadingTime);
+                } else {
+                    text = "Updated " + formatTime(lastReadingTime);
+                }
+
+                el.textContent = text;
+                el.classList.toggle("updated-warning", text.indexOf("Updated") !== 0);
             }
 
             // Fetch data from the backend API
@@ -374,9 +413,12 @@
                     const response = await fetch("/api/sensors");
                     if (!response.ok) throw new Error("Failed to fetch data");
                     const data = await response.json();
+                    fetchFailed = false;
                     updateDisplay(data);
                 } catch (error) {
                     console.error("Error fetching sensor data:", error);
+                    fetchFailed = true;
+                    showUpdated();
                 }
             }
 

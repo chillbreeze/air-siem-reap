@@ -147,6 +147,10 @@ from(bucket: "{INFLUX_BUCKET}")
                 for table in result:
                     for record in table.records:
                         data[key] = record.get_value()
+                        # Use the AQI reading's time as the "last updated" time,
+                        # so the page can tell when the outdoor sensor stops reporting
+                        if key == 'aqi':
+                            data['updated_at'] = record.get_time().isoformat()
     except Exception as e:
         app.logger.error(f'InfluxDB error in get_sensors: {e}')
         return jsonify({'error': 'Failed to fetch sensor data'}), 500
@@ -569,29 +573,6 @@ from(bucket: "{INFLUX_BUCKET}")
 def health():
     """Health check endpoint."""
     return jsonify({'status': 'ok'})
-
-
-@app.route('/api/debug/nox')
-def debug_nox():
-    """Temporary: find what NOx-related measurements exist in InfluxDB."""
-    found = []
-    try:
-        with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
-            qapi = client.query_api()
-            # Search all measurements in last 24h that contain 'nox'
-            q = f'''
-import "influxdata/influxdb/schema"
-schema.measurements(bucket: "{INFLUX_BUCKET}")
-'''
-            result = qapi.query(q)
-            for table in result:
-                for record in table.records:
-                    val = record.get_value()
-                    if val and 'nox' in str(val).lower():
-                        found.append(val)
-    except Exception as e:
-        return jsonify({'error': str(e)})
-    return jsonify({'measurements_containing_nox': found})
 
 
 if __name__ == '__main__':
