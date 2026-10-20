@@ -236,24 +236,8 @@
         </div>
 
         <script>
-            // Configuration - Update these entity IDs to match your Home Assistant setup
+            // Page settings
             const CONFIG = {
-                // Home Assistant API endpoint (the backend will proxy this)
-                apiEndpoint: "/api/states",
-
-                // Entity IDs from Home Assistant - update these to match your setup
-                entities: {
-                    aqi: "sensor.pms5003_aqi_outdoor_01",
-                    pm1: "sensor.pms5003_pm1_outdoor_01",
-                    pm25: "sensor.pms5003_pm25_outdoor_01",
-                    pm10: "sensor.pms5003_pm10_outdoor_01",
-                    temperature: "sensor.sht30_temperature_outdoor_01",
-                    humidity: "sensor.sht30_humidity_outdoor_01",
-                    pressure: "sensor.sht30_pressuer_outdoor_01",
-                    heat_index: "sensor.sht30_heatindex_outdoor_01",
-                    dew_point: "sensor.sht30_dewpoint_outdoor_01",
-                },
-
                 // Refresh interval in milliseconds (30 seconds)
                 refreshInterval: 30000,
 

@@ -1,62 +1,21 @@
 #!/usr/bin/env python3
 """
 Air Quality Dashboard Backend
-Proxies requests to Home Assistant API and serves the static dashboard.
+Reads sensor data from InfluxDB and serves the dashboard pages and JSON API.
 """
 
 import os
 from datetime import datetime
 from flask import Flask, jsonify, request, send_from_directory, render_template_string
-import requests
 from influxdb_client import InfluxDBClient
 
 app = Flask(__name__, static_folder='static')
-
-# Configuration from environment variables
-HA_URL = os.environ.get('HA_URL', 'http://homeassistant.local:8123')
-HA_TOKEN = os.environ.get('HA_TOKEN', '')
 
 # InfluxDB configuration
 INFLUX_URL = os.environ.get('INFLUX_URL', 'http://localhost:8086')
 INFLUX_TOKEN = os.environ.get('INFLUX_TOKEN', '')
 INFLUX_ORG = os.environ.get('INFLUX_ORG', '')
 INFLUX_BUCKET = os.environ.get('INFLUX_BUCKET', 'home')
-
-# Entity IDs - customize these to match your Home Assistant setup
-ENTITIES = {
-    'aqi': os.environ.get('ENTITY_AQI', 'sensor.air_quality_aqi'),
-    'pm1': os.environ.get('ENTITY_PM1', 'sensor.air_quality_pm1'),
-    'pm25': os.environ.get('ENTITY_PM25', 'sensor.air_quality_pm25'),
-    'pm40': os.environ.get('ENTITY_PM40', 'sensor.air_quality_pm40'),
-    'pm10': os.environ.get('ENTITY_PM10', 'sensor.air_quality_pm10'),
-    'temperature': os.environ.get('ENTITY_TEMP', 'sensor.air_quality_temperature'),
-    'humidity': os.environ.get('ENTITY_HUMIDITY', 'sensor.air_quality_humidity'),
-    'heat_index': os.environ.get('ENTITY_HEAT_INDEX', 'sensor.air_quality_heat_index'),
-    'dew_point': os.environ.get('ENTITY_DEW_POINT', 'sensor.air_quality_dew_point'),
-    'pressure': os.environ.get('ENTITY_PRESSURE', 'sensor.air_quality_pressure'),
-    'aqi_corrected': os.environ.get('ENTITY_AQI_CORRECTED', 'sensor.outdoor_pm2_5_corrected_aqi'),
-}
-
-
-def get_ha_state(entity_id):
-    """Fetch the state of a single entity from Home Assistant."""
-    headers = {
-        'Authorization': f'Bearer {HA_TOKEN}',
-        'Content-Type': 'application/json',
-    }
-    
-    try:
-        response = requests.get(
-            f'{HA_URL}/api/states/{entity_id}',
-            headers=headers,
-            timeout=10
-        )
-        response.raise_for_status()
-        data = response.json()
-        return data.get('state')
-    except requests.RequestException as e:
-        app.logger.error(f'Error fetching {entity_id}: {e}')
-        return None
 
 
 @app.route('/')

@@ -12,23 +12,10 @@ services:
     env_file:
       - .env
     environment:
-      - HA_URL
-      - HA_TOKEN
       - INFLUX_URL
       - INFLUX_TOKEN
       - INFLUX_ORG
       - INFLUX_BUCKET
-      - ENTITY_AQI=sensor.environmental_outdoor_sen55_aqi_outdoor
-      - ENTITY_AQI_CORRECTED=sensor.outdoor_pm2_5_corrected_aqi
-      - ENTITY_PM1=sensor.environmental_outdoor_sen55_pm1_0
-      - ENTITY_PM25=sensor.environmental_outdoor_sen55_pm2_5
-      - ENTITY_PM40=sensor.environmental_outdoor_sen55_pm4_0
-      - ENTITY_PM10=sensor.environmental_outdoor_sen55_pm10
-      - ENTITY_TEMP=sensor.environmental_outdoor_sen55_temperature
-      - ENTITY_HUMIDITY=sensor.environmental_outdoor_sen55_humidity
-      - ENTITY_PRESSURE=sensor.bme688_pressure_indoor_01
-      - ENTITY_HEAT_INDEX=sensor.environmental_outdoor_sen55_heat_index_outdoor
-      - ENTITY_DEW_POINT=sensor.environmental_outdoor_sen55_dew_point_outdoor
     healthcheck:
       test:
         - CMD-SHELL
