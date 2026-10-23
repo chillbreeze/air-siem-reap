@@ -18,9 +18,6 @@ venv/
 .venv/
 env/
 
-# Pelican output
-blog/output/
-
 # Env files
 .env
 *.env
