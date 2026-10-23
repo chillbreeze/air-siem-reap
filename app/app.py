@@ -7,7 +7,7 @@ Reads sensor data from InfluxDB and serves the dashboard pages and JSON API.
 import os
 import time
 from datetime import datetime
-from flask import Flask, jsonify, request, send_from_directory, render_template_string
+from flask import Flask, abort, jsonify, request, send_from_directory, render_template_string
 from influxdb_client import InfluxDBClient
 
 app = Flask(__name__, static_folder='static')
@@ -214,7 +214,10 @@ def _fetch_comparison(entity_key):
                 results[period] = (None, None)
             else:
                 pct = (curr_val - prev_val) / prev_val * 100
-                if pct > 0:
+                if abs(pct) < 2:
+                    # Tiny changes are just noise, so call them "similar" instead of showing ▲ 0% / ▼ 1%
+                    results[period] = ('similar', 0)
+                elif pct > 0:
                     results[period] = ('up', round(abs(pct)))
                 else:
                     results[period] = ('down', round(abs(pct)))
@@ -224,6 +227,9 @@ def _fetch_comparison(entity_key):
 @app.route('/metric/<entity_key>/')
 def metric(entity_key):
     """Serve the metric history graph page with server-rendered OG tags."""
+    # Only metrics with a data source get a page; anything else (typos, PM10) is a 404
+    if entity_key not in INFLUX_ENTITIES:
+        abort(404)
     meta = METRIC_META.get(entity_key, {'label': 'Air Quality', 'description': 'Live air quality readings for Siem Reap, Cambodia.'})
 
     cmp = _metric_comparison(entity_key)
@@ -274,6 +280,11 @@ from(bucket: "{INFLUX_BUCKET}")
   |> filter(fn: (r) => r["_field"] == "value")
 '''
 
+    # Average into 5-minute buckets (the chart shows 5-minute averages anyway),
+    # so we send ~288 points instead of ~1440 raw readings.
+    # timeSrc "_start" labels each bucket by its start time, same as the page's own bucketing.
+    query += '  |> aggregateWindow(every: 5m, fn: mean, createEmpty: false, timeSrc: "_start")\n'
+
     def fetch():
         with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
             qapi = client.query_api()
@@ -284,7 +295,7 @@ from(bucket: "{INFLUX_BUCKET}")
             for record in table.records:
                 points.append({
                     'time': record.get_time().isoformat(),
-                    'value': record.get_value(),
+                    'value': round(record.get_value(), 2),
                 })
         return points
 
