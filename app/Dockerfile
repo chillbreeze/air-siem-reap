@@ -8,4 +8,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # The app code itself is mounted from ./app in compose.yaml,
 # so editing files only needs a container restart, not a rebuild.
-CMD ["gunicorn", "--bind", "0.0.0.0:5080", "--workers", "2", "app:app"]
+# One worker with several threads, so all requests share the same in-memory cache in app.py
+CMD ["gunicorn", "--bind", "0.0.0.0:5080", "--workers", "1", "--threads", "4", "app:app"]

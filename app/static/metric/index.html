@@ -19,8 +19,6 @@
         <link rel="stylesheet" href="/static/css/shared.css" />
         <link rel="stylesheet" href="/static/css/metric.css" />
         <script>(function(){var t=localStorage.getItem('theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');})();</script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     </head>
     <body>
 <div class="container">
@@ -179,6 +177,9 @@
 
         <div class="heatmap-tooltip" id="heatmap-tooltip"></div>
 
+        <!-- Chart.js is self-hosted (pinned version) and loaded at the end of the page so it doesn't block rendering -->
+        <script src="/static/js/chart-4.6.1.umd.min.js"></script>
+        <script src="/static/js/chartjs-adapter-date-fns-3.0.0.bundle.min.js"></script>
         <script>
             const isMobile = window.matchMedia('(pointer: coarse)').matches;
             let chart24h = null;

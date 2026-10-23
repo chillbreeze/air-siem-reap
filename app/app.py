@@ -5,6 +5,7 @@ Reads sensor data from InfluxDB and serves the dashboard pages and JSON API.
 """
 
 import os
+import time
 from datetime import datetime
 from flask import Flask, jsonify, request, send_from_directory, render_template_string
 from influxdb_client import InfluxDBClient
@@ -16,6 +17,27 @@ INFLUX_URL = os.environ.get('INFLUX_URL', 'http://localhost:8086')
 INFLUX_TOKEN = os.environ.get('INFLUX_TOKEN', '')
 INFLUX_ORG = os.environ.get('INFLUX_ORG', '')
 INFLUX_BUCKET = os.environ.get('INFLUX_BUCKET', 'home')
+
+# How long (seconds) to reuse a query result before asking InfluxDB again.
+# The sensor only reports once a minute, so there's no point querying more often.
+CACHE_CURRENT = 30      # latest readings
+CACHE_HISTORY = 300     # 24h / 7d / 30d charts and min/max
+CACHE_SLOW = 3600       # heatmap and period comparisons
+
+# Simple in-memory cache: {name: (time saved, result)}
+_cache = {}
+
+
+def cached(name, seconds, fetch):
+    """Return the saved result for `name` if it's newer than `seconds`,
+    otherwise call fetch() and save its result.
+    If fetch() raises an error, nothing is saved, so the next request tries again."""
+    hit = _cache.get(name)
+    if hit and time.time() - hit[0] < seconds:
+        return hit[1]
+    result = fetch()
+    _cache[name] = (time.time(), result)
+    return result
 
 
 @app.route('/')
@@ -83,43 +105,54 @@ def sitemap():
 
 @app.route('/api/sensors')
 def get_sensors():
-    """Fetch the most recent value for each sensor from InfluxDB."""
-    data = {}
-
+    """Return the most recent value for each sensor."""
     try:
-        with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
-            qapi = client.query_api()
-            for key, (measurement, entity_id) in INFLUX_ENTITIES.items():
-                if entity_id is None:
-                    query = f'''
-from(bucket: "{INFLUX_BUCKET}")
-  |> range(start: -1h)
-  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
-  |> filter(fn: (r) => r["_field"] == "value")
-  |> last()
-'''
-                else:
-                    query = f'''
-from(bucket: "{INFLUX_BUCKET}")
-  |> range(start: -1h)
-  |> filter(fn: (r) => r["_measurement"] == "{measurement}")
-  |> filter(fn: (r) => r["entity_id"] == "{entity_id}")
-  |> filter(fn: (r) => r["_field"] == "value")
-  |> last()
-'''
-                result = qapi.query(query)
-                for table in result:
-                    for record in table.records:
-                        data[key] = record.get_value()
-                        # Use the AQI reading's time as the "last updated" time,
-                        # so the page can tell when the outdoor sensor stops reporting
-                        if key == 'aqi':
-                            data['updated_at'] = record.get_time().isoformat()
+        return jsonify(cached('sensors', CACHE_CURRENT, _fetch_sensors))
     except Exception as e:
         app.logger.error(f'InfluxDB error in get_sensors: {e}')
         return jsonify({'error': 'Failed to fetch sensor data'}), 500
 
-    return jsonify(data)
+
+def _fetch_sensors():
+    """Get the latest value of every sensor with a single InfluxDB query."""
+    # One condition per sensor, joined with "or", e.g.
+    #   (r["_measurement"] == "°C" and r["entity_id"] == "..._temperature")
+    conditions = []
+    for measurement, entity_id in INFLUX_ENTITIES.values():
+        if entity_id is None:
+            conditions.append(f'r["_measurement"] == "{measurement}"')
+        else:
+            conditions.append(f'(r["_measurement"] == "{measurement}" and r["entity_id"] == "{entity_id}")')
+    query = f'''
+from(bucket: "{INFLUX_BUCKET}")
+  |> range(start: -1h)
+  |> filter(fn: (r) => {" or ".join(conditions)})
+  |> filter(fn: (r) => r["_field"] == "value")
+  |> last()
+'''
+
+    # Lookup to turn each returned row back into our sensor key ('aqi', 'pm25', ...)
+    key_for = {}
+    for key, (measurement, entity_id) in INFLUX_ENTITIES.items():
+        key_for[(measurement, entity_id)] = key
+
+    data = {}
+    newest = {}  # key -> time of the reading we kept, in case a sensor comes back in more than one table
+    with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
+        for table in client.query_api().query(query):
+            for record in table.records:
+                measurement = record.get_measurement()
+                key = key_for.get((measurement, record.values.get('entity_id'))) or key_for.get((measurement, None))
+                if key is None or (key in newest and newest[key] >= record.get_time()):
+                    continue
+                newest[key] = record.get_time()
+                data[key] = record.get_value()
+
+    # Use the AQI reading's time as the "last updated" time,
+    # so the page can tell when the outdoor sensor stops reporting
+    if 'aqi' in newest:
+        data['updated_at'] = newest['aqi'].isoformat()
+    return data
 
 
 METRIC_META = {
@@ -139,14 +172,22 @@ METRIC_META = {
 BASE_URL = 'https://air.siemreap.cloud'
 
 def _metric_comparison(entity_key):
-    """Query InfluxDB for period-over-period averages for any metric.
+    """Period-over-period averages for any metric (cached for an hour).
     Returns dict keyed by 'day','week','month' with (direction, delta_pct) tuples.
     direction is 'up', 'down', 'similar', or None (insufficient data).
     """
-    entry = INFLUX_ENTITIES.get(entity_key)
-    if not entry:
+    if entity_key not in INFLUX_ENTITIES:
         return {}
-    measurement, entity_id = entry
+    try:
+        return cached(f'comparison:{entity_key}', CACHE_SLOW, lambda: _fetch_comparison(entity_key))
+    except Exception as e:
+        app.logger.error(f'Metric comparison error ({entity_key}): {e}')
+        return {'day': (None, None), 'week': (None, None), 'month': (None, None)}
+
+
+def _fetch_comparison(entity_key):
+    """Query InfluxDB for the averages behind _metric_comparison."""
+    measurement, entity_id = INFLUX_ENTITIES[entity_key]
     entity_filter = f'  |> filter(fn: (r) => r["entity_id"] == "{entity_id}")\n' if entity_id else ''
     periods = [
         ('day',   '-24h', '-48h', '-24h'),
@@ -154,34 +195,29 @@ def _metric_comparison(entity_key):
         ('month', '-30d', '-60d', '-30d'),
     ]
     results = {}
-    try:
-        with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
-            qapi = client.query_api()
-            for period, curr_start, prev_start, prev_stop in periods:
-                curr_q = f'''from(bucket: "{INFLUX_BUCKET}")
+    with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
+        qapi = client.query_api()
+        for period, curr_start, prev_start, prev_stop in periods:
+            curr_q = f'''from(bucket: "{INFLUX_BUCKET}")
   |> range(start: {curr_start})
   |> filter(fn: (r) => r["_measurement"] == "{measurement}")
 {entity_filter}  |> filter(fn: (r) => r["_field"] == "value")
   |> mean()'''
-                prev_q = f'''from(bucket: "{INFLUX_BUCKET}")
+            prev_q = f'''from(bucket: "{INFLUX_BUCKET}")
   |> range(start: {prev_start}, stop: {prev_stop})
   |> filter(fn: (r) => r["_measurement"] == "{measurement}")
 {entity_filter}  |> filter(fn: (r) => r["_field"] == "value")
   |> mean()'''
-                curr_val = next((r.get_value() for t in qapi.query(curr_q) for r in t.records), None)
-                prev_val = next((r.get_value() for t in qapi.query(prev_q) for r in t.records), None)
-                if curr_val is None or prev_val is None or prev_val == 0:
-                    results[period] = (None, None)
+            curr_val = next((r.get_value() for t in qapi.query(curr_q) for r in t.records), None)
+            prev_val = next((r.get_value() for t in qapi.query(prev_q) for r in t.records), None)
+            if curr_val is None or prev_val is None or prev_val == 0:
+                results[period] = (None, None)
+            else:
+                pct = (curr_val - prev_val) / prev_val * 100
+                if pct > 0:
+                    results[period] = ('up', round(abs(pct)))
                 else:
-                    pct = (curr_val - prev_val) / prev_val * 100
-                    if pct > 0:
-                        results[period] = ('up', round(abs(pct)))
-                    else:
-                        results[period] = ('down', round(abs(pct)))
-    except Exception as e:
-        app.logger.error(f'Metric comparison error ({entity_key}): {e}')
-        for period, *_ in periods:
-            results.setdefault(period, (None, None))
+                    results[period] = ('down', round(abs(pct)))
     return results
 
 
@@ -238,7 +274,7 @@ from(bucket: "{INFLUX_BUCKET}")
   |> filter(fn: (r) => r["_field"] == "value")
 '''
 
-    try:
+    def fetch():
         with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
             qapi = client.query_api()
             result = qapi.query(query)
@@ -250,8 +286,10 @@ from(bucket: "{INFLUX_BUCKET}")
                     'time': record.get_time().isoformat(),
                     'value': record.get_value(),
                 })
+        return points
 
-        return jsonify(points)
+    try:
+        return jsonify(cached(f'history:{entity_key}', CACHE_HISTORY, fetch))
     except Exception as e:
         app.logger.error(f'InfluxDB error for {entity_key}: {e}')
         return jsonify({'error': 'Failed to fetch history'}), 500
@@ -302,7 +340,7 @@ from(bucket: "{INFLUX_BUCKET}")
     min_query = base_query + '  |> aggregateWindow(every: 1d, fn: min, createEmpty: false)'
     avg_query = base_query + '  |> aggregateWindow(every: 1d, fn: mean, createEmpty: false)'
 
-    try:
+    def fetch():
         with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
             qapi = client.query_api()
             max_result = qapi.query(max_query)
@@ -340,7 +378,10 @@ from(bucket: "{INFLUX_BUCKET}")
             if 'high' in v and 'low' in v
         ]
         points.sort(key=lambda p: p['date'])
-        return jsonify(points)
+        return points
+
+    try:
+        return jsonify(cached(f'history7d:{entity_key}', CACHE_HISTORY, fetch))
     except Exception as e:
         app.logger.error(f'InfluxDB 7d error for {entity_key}: {e}')
         return jsonify({'error': 'Failed to fetch 7-day history'}), 500
@@ -375,7 +416,7 @@ from(bucket: "{INFLUX_BUCKET}")
     min_query = base_query + '  |> aggregateWindow(every: 1d, fn: min, createEmpty: false)'
     avg_query = base_query + '  |> aggregateWindow(every: 1d, fn: mean, createEmpty: false)'
 
-    try:
+    def fetch():
         with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
             qapi = client.query_api()
             max_result = qapi.query(max_query)
@@ -413,7 +454,10 @@ from(bucket: "{INFLUX_BUCKET}")
             if 'high' in v and 'low' in v
         ]
         points.sort(key=lambda p: p['date'])
-        return jsonify(points)
+        return points
+
+    try:
+        return jsonify(cached(f'history30d:{entity_key}', CACHE_HISTORY, fetch))
     except Exception as e:
         app.logger.error(f'InfluxDB 30d error for {entity_key}: {e}')
         return jsonify({'error': 'Failed to fetch 30-day history'}), 500
@@ -427,6 +471,9 @@ def get_heatmap(entity_key):
         return jsonify({'error': 'Unknown entity'}), 404
 
     year = request.args.get('year', type=int, default=datetime.now().year)
+    # Only allow sensible years, so random ?year= values can't fill up the cache
+    if not 2020 <= year <= datetime.now().year:
+        return jsonify({'error': 'Invalid year'}), 400
     range_start = f'{year}-01-01T00:00:00Z'
     range_stop = f'{year + 1}-01-01T00:00:00Z'
 
@@ -450,7 +497,7 @@ from(bucket: "{INFLUX_BUCKET}")
   |> aggregateWindow(every: 1d, fn: mean, createEmpty: false)
 '''
 
-    try:
+    def fetch():
         with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
             qapi = client.query_api()
             result = qapi.query(query)
@@ -467,7 +514,10 @@ from(bucket: "{INFLUX_BUCKET}")
                 })
 
         points.sort(key=lambda p: p['date'])
-        return jsonify(points)
+        return points
+
+    try:
+        return jsonify(cached(f'heatmap:{entity_key}:{year}', CACHE_SLOW, fetch))
     except Exception as e:
         app.logger.error(f'InfluxDB heatmap error for {entity_key}: {e}')
         return jsonify({'error': 'Failed to fetch heatmap data'}), 500
@@ -503,7 +553,7 @@ from(bucket: "{INFLUX_BUCKET}")
     max_query = query + '  |> max()'
     avg_query = query + '  |> mean()'
 
-    try:
+    def fetch():
         with InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG) as client:
             qapi = client.query_api()
             min_result = qapi.query(min_query)
@@ -527,7 +577,10 @@ from(bucket: "{INFLUX_BUCKET}")
                     v = record.get_value()
                     avg_val = round(v, 1) if v is not None else None
 
-        return jsonify({'min': min_val, 'max': max_val, 'avg': avg_val})
+        return {'min': min_val, 'max': max_val, 'avg': avg_val}
+
+    try:
+        return jsonify(cached(f'minmax:{entity_key}', CACHE_HISTORY, fetch))
     except Exception as e:
         app.logger.error(f'InfluxDB error for {entity_key}: {e}')
         return jsonify({'error': 'Failed to fetch min/max'}), 500
