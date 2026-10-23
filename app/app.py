@@ -74,6 +74,15 @@ def contact():
     return send_from_directory('static/contact', 'index.html')
 
 
+@app.route('/robots.txt')
+def robots():
+    """Point crawlers to the sitemap.
+    No allow/block rules here: Cloudflare's managed robots.txt adds those in front of this file,
+    and with no rules at all, everything is allowed anyway."""
+    text = f"Sitemap: {BASE_URL}/sitemap.xml\n"
+    return app.response_class(text, mimetype='text/plain')
+
+
 @app.route('/sitemap.xml')
 def sitemap():
     """Serve sitemap for search engine indexing.
