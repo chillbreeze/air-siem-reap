@@ -52,16 +52,6 @@ html[data-theme="light"] {
     transition: color 0.5s ease;
 }
 
-/* One-line health advice under the AQI status */
-.aqi-advice {
-    font-size: 0.875rem;
-    font-weight: 300;
-    color: var(--text-dim);
-    max-width: 32rem;
-    margin: 0.75rem auto 0;
-    line-height: 1.5;
-}
-
 @media (max-height: 900px) and (min-width: 769px) {
     .hero {
         padding: 1rem 3rem 1rem;
