@@ -423,6 +423,19 @@
             fetchData();
             setInterval(fetchData, CONFIG.refreshInterval);
 
+            // Browsers pause timers in background tabs and while the computer sleeps,
+            // so fetch straight away when the visitor comes back instead of
+            // showing an old reading until the next timer tick.
+            document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState === "visible") fetchData();
+            });
+            // Wi-Fi often reconnects a few seconds after waking up
+            window.addEventListener("online", fetchData);
+            // Page restored with the back/forward buttons (from the browser's memory)
+            window.addEventListener("pageshow", (event) => {
+                if (event.persisted) fetchData();
+            });
+
             document
                 .getElementById("theme-toggle")
                 .addEventListener("click", () => {
